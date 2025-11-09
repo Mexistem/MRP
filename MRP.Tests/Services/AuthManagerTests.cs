@@ -37,5 +37,14 @@ namespace MRP.Tests
             Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.Login("melanie", "123!Password"));
 
         }
+
+        [TestMethod]
+        public void Login_WithUnknownUser_ShouldThrowException()
+        {
+            var userManager = new UserManager();
+            var authManager = new AuthManager(userManager);
+
+            Assert.ThrowsException<InvalidOperationException>(() => authManager.Login("unknown", "something"));
+        }
     }
 }

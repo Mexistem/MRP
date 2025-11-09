@@ -24,8 +24,8 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Erstellungsdatum wird richtig gesetzt
 
 ### 2. Anmeldung (Login)
-- [ ] Login mit korrekten Daten gibt gültigen Token zurück
-- [ ] Login mit falschem Passwort wird abgelehnt
+- [x] Login mit korrekten Daten gibt gültigen Token zurück
+- [x] Login mit falschem Passwort wird abgelehnt
 - [ ] Login mit unbekanntem Benutzer wird abgelehnt
 - [ ] Login ist case-insensitive
 - [ ] Token enthält korrekten Benutzernamen und festen Suffix „-mrpToken“
