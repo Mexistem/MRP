@@ -19,7 +19,7 @@ namespace MRP.Server.Models
             ValidatePassword(password, username);
 
             Username = username;
-            Password = password;
+            Password = HashPassword(password);
         }
 
         private static void ValidateUsername(string username)
@@ -56,6 +56,13 @@ namespace MRP.Server.Models
             {
                 throw new ArgumentException("Password is not allowed to contain the username");
             }
+        }
+
+        private static string HashPassword(string password)
+        {
+                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(password);
+                byte[] hash = System.Security.Cryptography.SHA256.HashData(bytes);
+                return Convert.ToBase64String(hash);
         }
 
         public override bool Equals(object? obj)
