@@ -13,5 +13,16 @@ namespace MRP.Tests
 
             Assert.IsNotNull(user);
         }
+
+        [TestMethod]
+        public void User_ShouldThrowException_WhenUsernameIsEmpty()
+        {
+            string emptyUsername = "";
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new User(emptyUsername);
+            });
+        }
     }
 }

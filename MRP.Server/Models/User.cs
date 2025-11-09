@@ -8,5 +8,10 @@ namespace MRP.Server.Models
 {
     public class User
     {
+        public string Username { get; }
+
+        public User() { }
+
+        public User(string username) { }
     }
 }

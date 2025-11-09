@@ -10,7 +10,7 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 
 ### 1. Benutzer erstellen
 - [ ] Benutzer kann erstellt werden
-- [ ] Benutzername darf nicht leer sein
+- [ ] Benutzername darf nicht leer sein oder nur aus Leerzeichen bestehen
 - [ ] Benutzername darf keine Sonderzeichen enthalten
 - [ ] Passwort darf nicht leer sein
 - [ ] Passwort wird verschlüsselt gespeichert
