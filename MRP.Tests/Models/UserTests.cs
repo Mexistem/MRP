@@ -1,7 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using MRP.Server.Models;
 
-namespace MRP.Tests
+namespace MRP.Tests.Models
 {
     [TestClass]
     public sealed class UserTests
