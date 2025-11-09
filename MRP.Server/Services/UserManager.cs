@@ -25,7 +25,13 @@ namespace MRP.Server.Services
 
         public void Register(string username, string password)
         {
+            var user = new User(username, password);
+            AddUser(user);
+        }
 
+        public User? GetUser(string username)
+        {
+            return _users.FirstOrDefault(u => u.Username == username);
         }
     }
 }

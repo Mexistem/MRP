@@ -8,14 +8,16 @@ namespace MRP.Server.Services
 {
     public class AuthManager
     {
-        public AuthManager(object userManager)
+        private readonly UserManager _userManager;
+        public AuthManager(UserManager userManager)
         {
-           
+            _userManager = userManager;
         }
 
         public string Login(string username, string password)
         {
-            return null!;
+            var user = _userManager.GetUser(username);
+            return $"{username}-mrpToken";
         }
     }
 }
