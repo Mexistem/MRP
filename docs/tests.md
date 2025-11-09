@@ -28,7 +28,7 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Login mit falschem Passwort wird abgelehnt
 - [x] Login mit unbekanntem Benutzer wird abgelehnt
 - [x] Login ist case-insensitive
-- [ ] Token wird intern gespeichert
+- [x] Token wird intern gespeichert
 - [ ] Token Ablaufzeit ist korrekt gesetzt (+30 Minuten)
 - [ ] Gültiger Token wird akzeptiert
 - [ ] Abgelaufener Token wird abgelehnt
