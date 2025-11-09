@@ -31,5 +31,9 @@ namespace MRP.Server.Models
 
             return Username == otherUser.Username;
         }
+        public override int GetHashCode()
+        {
+            return Username.GetHashCode();
+        }
     }
 }

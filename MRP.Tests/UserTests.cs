@@ -41,7 +41,6 @@ namespace MRP.Tests
         }
 
         [TestMethod]
-
         public void Users_WithSameUsername_ShouldBeEqual()
         {
             var userA = new User("melanie");
@@ -51,6 +50,17 @@ namespace MRP.Tests
 
             Assert.IsTrue(areEqual);
 
+        }
+
+        [TestMethod]
+        public void Users_WithDifferentUsernames_ShouldNotBeEqual()
+        {
+            var userA = new User("melanie");
+            var userB = new User("lena");
+
+            bool areEqual = userA.Equals(userB);
+
+            Assert.IsFalse(areEqual);
         }
     }
 }
