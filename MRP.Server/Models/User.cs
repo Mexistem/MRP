@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MRP.Server.Models
 {
@@ -31,6 +33,11 @@ namespace MRP.Server.Models
             if(string.IsNullOrWhiteSpace(password))
             {
                 throw new ArgumentException("Password is not allowed to be empty or contain only whitespace", nameof(password));
+            }
+
+            if(password.Length < 8 || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[0-9]") || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[!@#$%&*(),.)""':{}|<>]"))
+            {
+                throw new ArgumentException("Password must be at least 8 characters long and contain at least one number and one special character", nameof(password));
             }
 
             Username = username;

@@ -106,8 +106,8 @@ namespace MRP.Tests.Models
         {
             string username = "melanie";
             string tooShortPassword = "Ab1!";
-            string noNumberPassword = "Abcdef!";
-            string noSpecialPassword = "Abcdef1";
+            string noNumberPassword = "Abcdef@!";
+            string noSpecialPassword = "Abcdef12";
 
             Assert.ThrowsException<ArgumentException>(() => new User(username, tooShortPassword));
             Assert.ThrowsException<ArgumentException>(() => new User(username, noNumberPassword));
