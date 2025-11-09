@@ -9,9 +9,9 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 ## A. Benutzerverwaltung
 
 ### 1. Benutzer erstellen
-- [ ] Benutzer kann erstellt werden
-- [ ] Benutzername darf nicht leer sein oder nur aus Leerzeichen bestehen
-- [ ] Benutzername soll richtig gespeichert werden
+- [x] Benutzer kann erstellt werden
+- [x] Benutzername darf nicht leer sein oder nur aus Leerzeichen bestehen
+- [x] Benutzername soll richtig gespeichert werden
 - [ ] Zwei Benutzer mit gleichem Namen gelten als gleich
 - [ ] Benutzername darf keine Sonderzeichen enthalten
 - [ ] Benutzername darf nicht zu lang sein

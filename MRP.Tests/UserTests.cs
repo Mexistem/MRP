@@ -31,7 +31,6 @@ namespace MRP.Tests
         }
 
         [TestMethod]
-
         public void User_ShouldStoreUsername_WhenValid()
         {
             string validUsername = "melanie";
@@ -39,6 +38,19 @@ namespace MRP.Tests
             var user = new User(validUsername);
 
             Assert.AreEqual(validUsername, user.Username);
+        }
+
+        [TestMethod]
+
+        public void Users_WithSameUsername_ShouldBeEqual()
+        {
+            var userA = new User("melanie");
+            var userB = new User("melanie");
+
+            bool areEqual = userA.Equals(userB);
+
+            Assert.IsTrue(areEqual);
+
         }
     }
 }
