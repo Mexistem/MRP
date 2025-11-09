@@ -15,6 +15,7 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [ ] Zwei Benutzer mit gleichem Namen gelten als gleich
 - [ ] Benutzername darf keine Sonderzeichen enthalten
 - [ ] Benutzername darf nicht zu lang sein
+- [ ] Benutzername darf nicht zu kurz sein
 - [ ] Neuer Benutzer mit gleichem Namen darf nicht erstellt werden
 - [ ] Passwort darf nicht leer sein
 - [ ] Passwort muss Mindestlänge haben, mit mindestens einem Sonderzeichen und einer Zahl
