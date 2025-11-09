@@ -12,7 +12,7 @@ namespace MRP.Server.Models
 
         public User() { }
 
-        public User(string username) 
+        public User(string username, string password) 
         {
             if (string.IsNullOrWhiteSpace(username))
             {

@@ -69,7 +69,7 @@ namespace MRP.Tests.Models
         {
             string invalidUsername = "Mel@n?e!";
 
-            Assert.ThrowsException<ArgumentException>( () => new User(invalidUsername));
+            Assert.ThrowsException<ArgumentException>( () => new User(invalidUsername, password));
         }
 
         [TestMethod]
@@ -77,7 +77,7 @@ namespace MRP.Tests.Models
         {
             string tooLongUsername = new string('a', 31);
 
-            Assert.ThrowsException<ArgumentException>(() => new User(tooLongUsername));
+            Assert.ThrowsException<ArgumentException>(() => new User(tooLongUsername, password));
 
         }
 
@@ -86,8 +86,17 @@ namespace MRP.Tests.Models
         {
             string tooShortUsername = "ab";
 
-            Assert.ThrowsException<ArgumentException>(() => new User(tooShortUsername));
+            Assert.ThrowsException<ArgumentException>(() => new User(tooShortUsername, password));
 
+        }
+
+        [TestMethod]
+        public void User_ShouldThrowException_WhenPasswordIsEmpty()
+        {
+            string username = "melanie";
+            string emptyPassword = "";
+
+            Assert.ThrowsException<ArgumentException>(() => new User(username, emptyPassword));
         }
     }
 }

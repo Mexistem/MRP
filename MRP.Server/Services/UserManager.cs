@@ -10,7 +10,7 @@ namespace MRP.Server.Services
 {
     public class UserManager
     {
-        private readonly List<User> _users = new();
+        private readonly List<User> _users = [];
         public UserManager() { }
 
         public void AddUser(User user)
