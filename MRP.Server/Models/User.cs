@@ -8,13 +8,18 @@ namespace MRP.Server.Models
 {
     public class User
     {
-        public string Username { get; }
+        public string Username { get; } = null!;
 
         public User() { }
 
         public User(string username) 
         {
-            throw new ArgumentException();
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new ArgumentException("Username is not allowed to be empty or contain only whitespace", nameof(username));
+            }
+
+            Username = username;
         }
     }
 }
