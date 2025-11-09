@@ -137,5 +137,20 @@ namespace MRP.Tests.Models
 
             Assert.AreNotEqual(password, user.Password);
         }
+
+        [TestMethod]
+        public void User_ShouldSetCreationDateOnCreation()
+        {
+            string username = "melanie";
+            string password = "!123Password";
+
+            var beforeCreation = DateTime.Now;
+            var user = new User(username,password);
+            var afterCreation = DateTime.Now;
+
+            Assert.IsTrue(user.CreatedAt >= beforeCreation && user.CreatedAt <= afterCreation);
+        }
+
+
     }
 }

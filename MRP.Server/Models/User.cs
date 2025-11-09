@@ -13,6 +13,8 @@ namespace MRP.Server.Models
         public string Username { get; } = null!;
         public string Password { get; private set; } = null!;
 
+        public DateTime CreatedAt { get; private set; }
+
         public User(string username, string password) 
         {
             ValidateUsername(username);
