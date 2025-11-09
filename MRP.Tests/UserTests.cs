@@ -19,10 +19,15 @@ namespace MRP.Tests
         {
             string emptyUsername = "";
 
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
-                new User(emptyUsername);
-            });
+            Assert.ThrowsException<ArgumentException>(() => new User(emptyUsername));
+        }
+
+        [TestMethod]
+        public void User_ShouldThrowException_WhenUsernameIsWhitespace()
+        {
+            string whitespaceUsername = "   ";
+
+            Assert.ThrowsException<ArgumentException>(() => new User(whitespaceUsername));
         }
     }
 }

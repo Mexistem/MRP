@@ -12,6 +12,9 @@ namespace MRP.Server.Models
 
         public User() { }
 
-        public User(string username) { }
+        public User(string username) 
+        {
+            throw new ArgumentException();
+        }
     }
 }
