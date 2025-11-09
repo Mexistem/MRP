@@ -46,5 +46,18 @@ namespace MRP.Tests
 
             Assert.ThrowsException<InvalidOperationException>(() => authManager.Login("unknown", "something"));
         }
+
+        [TestMethod]
+        public void Login_ShouldBeCaseInsensitive()
+        {
+            var userManager = new UserManager();
+            userManager.Register("melanie", "!123Password");
+
+            var authManager = new AuthManager(userManager);
+
+            string token = authManager.Login("MELANIE", "!123Password");
+
+            Assert.AreEqual("melanie-mrpToken", token);
+        }
     }
 }
