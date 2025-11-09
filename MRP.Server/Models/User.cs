@@ -21,5 +21,15 @@ namespace MRP.Server.Models
 
             Username = username;
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is not User otherUser)
+            {
+                return false;
+            }
+
+            return Username == otherUser.Username;
+        }
     }
 }
