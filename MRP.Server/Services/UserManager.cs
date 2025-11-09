@@ -22,5 +22,10 @@ namespace MRP.Server.Services
 
             _users.Add(user);
         }
+
+        public void Register(string username, string password)
+        {
+
+        }
     }
 }

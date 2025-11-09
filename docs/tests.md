@@ -12,22 +12,29 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Benutzer kann erstellt werden
 - [x] Benutzername darf nicht leer sein oder nur aus Leerzeichen bestehen
 - [x] Benutzername soll richtig gespeichert werden
-- [ ] Zwei Benutzer mit gleichem Namen gelten als gleich
-- [ ] Benutzername darf keine Sonderzeichen enthalten
-- [ ] Benutzername darf nicht zu lang sein
-- [ ] Benutzername darf nicht zu kurz sein
-- [ ] Neuer Benutzer mit gleichem Namen darf nicht erstellt werden
-- [ ] Passwort darf nicht leer sein
-- [ ] Passwort muss Mindestlänge haben, mit mindestens einem Sonderzeichen und einer Zahl
-- [ ] Passwort darf nicht den Benutzernamen enthalten
-- [ ] Passwort wird verschlüsselt gespeichert
-- [ ] Erstellungsdatum wird richtig gesetzt
+- [x] Zwei Benutzer mit gleichem Namen gelten als gleich
+- [x] Benutzername darf keine Sonderzeichen enthalten
+- [x] Benutzername darf nicht zu lang sein
+- [x] Benutzername darf nicht zu kurz sein
+- [x] Neuer Benutzer mit gleichem Namen darf nicht erstellt werden
+- [x] Passwort darf nicht leer sein
+- [x] Passwort muss Mindestlänge haben, mit mindestens einem Sonderzeichen und einer Zahl
+- [x] Passwort darf nicht den Benutzernamen enthalten
+- [x] Passwort wird verschlüsselt gespeichert
+- [x] Erstellungsdatum wird richtig gesetzt
 
 ### 2. Anmeldung (Login)
 - [ ] Login mit korrekten Daten gibt gültigen Token zurück
 - [ ] Login mit falschem Passwort wird abgelehnt
-- [ ] Token enthält Benutzername und Ablaufzeit
+- [ ] Login mit unbekanntem Benutzer wird abgelehnt
+- [ ] Login ist case-insensitive
+- [ ] Token enthält korrekten Benutzernamen und festen Suffix „-mrpToken“
+- [ ] Token wird intern gespeichert und ist eindeutig pro Benutzer
+- [ ] Token Ablaufzeit ist korrekt gesetzt (+30 Minuten)
+- [ ] Gültiger Token wird akzeptiert
 - [ ] Abgelaufener Token wird abgelehnt
+- [ ] Token kann nur vom richtigen Benutzer verwendet werden
+- [ ] Abgemeldeter Benutzer verliert Gültigkeit seines Tokens
 
 ### 3. Benutzerstatistik
 - [ ] Neuer Benutzer hat 0 Bewertungen
