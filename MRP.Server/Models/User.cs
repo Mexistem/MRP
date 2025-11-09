@@ -16,13 +16,13 @@ namespace MRP.Server.Models
         public User(string username, string password) 
         {
             ValidateUsername(username);
-            ValidatePassword(password);
+            ValidatePassword(password, username);
 
             Username = username;
             Password = password;
         }
 
-        private void ValidateUsername(string username)
+        private static void ValidateUsername(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
             {
@@ -39,7 +39,7 @@ namespace MRP.Server.Models
                 throw new ArgumentException("Username must be between 3 and 30 characters long", nameof(username));
             }
         }
-        private void ValidatePassword(string password)
+        private static void ValidatePassword(string password, string username)
         {
 
             if (string.IsNullOrWhiteSpace(password))
@@ -50,6 +50,11 @@ namespace MRP.Server.Models
             if (password.Length < 8 || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[0-9]") || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[!@#$%&*(),.)""':{}|<>]"))
             {
                 throw new ArgumentException("Password must be at least 8 characters long and contain at least one number and one special character", nameof(password));
+            }
+
+            if(password.ToLower().Contains(username.ToLower()))
+            {
+                throw new ArgumentException("Password is not allowed to contain the username");
             }
         }
 
