@@ -70,5 +70,14 @@ namespace MRP.Tests
 
             Assert.ThrowsException<ArgumentException>( () => new User(invalidUsername));
         }
+
+        [TestMethod]
+        public void User_ShouldThrowException_WhenUsernameIsTooLong()
+        {
+            string tooLongUsername = new string('a', 31);
+
+            Assert.ThrowsException<ArgumentException>(() => new User(tooLongUsername));
+
+        }
     }
 }
