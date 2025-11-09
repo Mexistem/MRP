@@ -10,8 +10,10 @@ namespace MRP.Server.Models
 {
     public class User
     {
-        public string Username { get; } = null!;
-        public string Password { get; private set; } = null!;
+        private const string UsernamePattern = @"^[a-zA-Z0-9_]+$";
+        private const string PasswordSpecialPattern = @"[!@#$%&*(),.)""':{}|<>]";
+        public string Username { get; }
+        public string Password { get; private set; }
 
         public DateTime CreatedAt { get; private set; }
 
@@ -22,7 +24,7 @@ namespace MRP.Server.Models
 
             Username = username;
             Password = HashPassword(password);
-            CreatedAt = DateTime.Now;
+            CreatedAt = DateTime.UtcNow;
         }
 
         private static void ValidateUsername(string username)
@@ -32,7 +34,7 @@ namespace MRP.Server.Models
                 throw new ArgumentException("Username is not allowed to be empty or contain only whitespace", nameof(username));
             }
 
-            if (!System.Text.RegularExpressions.Regex.IsMatch(username, @"^[a-zA-Z0-9_]+$"))
+            if (!System.Text.RegularExpressions.Regex.IsMatch(username, UsernamePattern))
             {
                 throw new ArgumentException("Username cannot contain special characters", nameof(username));
             }
@@ -50,7 +52,7 @@ namespace MRP.Server.Models
                 throw new ArgumentException("Password is not allowed to be empty or contain only whitespace", nameof(password));
             }
 
-            if (password.Length < 8 || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[0-9]") || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[!@#$%&*(),.)""':{}|<>]"))
+            if (password.Length < 8 || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[0-9]") || !System.Text.RegularExpressions.Regex.IsMatch(password, PasswordSpecialPattern))
             {
                 throw new ArgumentException("Password must be at least 8 characters long and contain at least one number and one special character", nameof(password));
             }
@@ -79,7 +81,7 @@ namespace MRP.Server.Models
         }
         public override int GetHashCode()
         {
-            return Username.GetHashCode();
+            return Username.ToLowerInvariant().GetHashCode();
         }
     }
 }

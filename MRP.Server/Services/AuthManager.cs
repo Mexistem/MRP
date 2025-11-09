@@ -11,7 +11,7 @@ namespace MRP.Server.Services
     public class AuthManager
     {
         private readonly UserManager _userManager;
-        private readonly Dictionary<string, string> _tokens = [];
+        private readonly Dictionary<string, string> _tokens = new(StringComparer.OrdinalIgnoreCase);
         public AuthManager(UserManager userManager)
         {
             _userManager = userManager;
@@ -33,12 +33,13 @@ namespace MRP.Server.Services
             }
 
             string token = $"{user.Username.ToLower()}-mrpToken";
-            if(!_tokens.ContainsKey(user.Username.ToLower()))
+
+            if(!_tokens.ContainsKey(user.Username))
             {
-                _tokens[user.Username.ToLower()] = token;
+                _tokens[user.Username] = token;
             }
 
-            return _tokens[user.Username.ToLower()];
+            return _tokens[user.Username];
         }
 
         public string? GetToken(string username)

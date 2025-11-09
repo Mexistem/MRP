@@ -144,9 +144,9 @@ namespace MRP.Tests.Models
             string username = "melanie";
             string password = "!123Password";
 
-            var beforeCreation = DateTime.Now;
+            var beforeCreation = DateTime.UtcNow;
             var user = new User(username,password);
-            var afterCreation = DateTime.Now;
+            var afterCreation = DateTime.UtcNow;
 
             Assert.IsTrue(user.CreatedAt >= beforeCreation && user.CreatedAt <= afterCreation);
         }
