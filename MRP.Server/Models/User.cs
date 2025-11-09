@@ -19,6 +19,11 @@ namespace MRP.Server.Models
                 throw new ArgumentException("Username is not allowed to be empty or contain only whitespace", nameof(username));
             }
 
+            if (!System.Text.RegularExpressions.Regex.IsMatch(username, @"^[a-zA-Z0-9_]+$"))
+            {
+                throw new ArgumentException("Username cannot contain special characters", nameof(username));
+            }
+
             Username = username;
         }
 
