@@ -11,8 +11,14 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 ### 1. Benutzer erstellen
 - [ ] Benutzer kann erstellt werden
 - [ ] Benutzername darf nicht leer sein oder nur aus Leerzeichen bestehen
+- [ ] Benutzername soll richtig gespeichert werden
+- [ ] Zwei Benutzer mit gleichem Namen gelten als gleich
 - [ ] Benutzername darf keine Sonderzeichen enthalten
+- [ ] Benutzername darf nicht zu lang sein
+- [ ] Neuer Benutzer mit gleichem Namen darf nicht erstellt werden
 - [ ] Passwort darf nicht leer sein
+- [ ] Passwort muss Mindestlänge haben, mit mindestens einem Sonderzeichen und einer Zahl
+- [ ] Passwort darf nicht den Benutzernamen enthalten
 - [ ] Passwort wird verschlüsselt gespeichert
 - [ ] Erstellungsdatum wird richtig gesetzt
 

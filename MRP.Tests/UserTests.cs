@@ -29,5 +29,16 @@ namespace MRP.Tests
 
             Assert.ThrowsException<ArgumentException>(() => new User(whitespaceUsername));
         }
+
+        [TestMethod]
+
+        public void User_ShouldStoreUsername_WhenValid()
+        {
+            string validUsername = "melanie";
+
+            var user = new User(validUsername);
+
+            Assert.AreEqual(validUsername, user.Username);
+        }
     }
 }
