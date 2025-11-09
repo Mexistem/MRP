@@ -15,6 +15,15 @@ namespace MRP.Server.Models
 
         public User(string username, string password) 
         {
+            ValidateUsername(username);
+            ValidatePassword(password);
+
+            Username = username;
+            Password = password;
+        }
+
+        private void ValidateUsername(string username)
+        {
             if (string.IsNullOrWhiteSpace(username))
             {
                 throw new ArgumentException("Username is not allowed to be empty or contain only whitespace", nameof(username));
@@ -25,23 +34,23 @@ namespace MRP.Server.Models
                 throw new ArgumentException("Username cannot contain special characters", nameof(username));
             }
 
-            if(username.Length > 30 || username.Length < 3)
+            if (username.Length > 30 || username.Length < 3)
             {
                 throw new ArgumentException("Username must be between 3 and 30 characters long", nameof(username));
             }
+        }
+        private void ValidatePassword(string password)
+        {
 
-            if(string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(password))
             {
                 throw new ArgumentException("Password is not allowed to be empty or contain only whitespace", nameof(password));
             }
 
-            if(password.Length < 8 || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[0-9]") || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[!@#$%&*(),.)""':{}|<>]"))
+            if (password.Length < 8 || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[0-9]") || !System.Text.RegularExpressions.Regex.IsMatch(password, @"[!@#$%&*(),.)""':{}|<>]"))
             {
                 throw new ArgumentException("Password must be at least 8 characters long and contain at least one number and one special character", nameof(password));
             }
-
-            Username = username;
-            Password = password;
         }
 
         public override bool Equals(object? obj)

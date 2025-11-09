@@ -114,5 +114,15 @@ namespace MRP.Tests.Models
             Assert.ThrowsException<ArgumentException>(() => new User(username, noSpecialPassword));
 
         }
+
+        [TestMethod]
+
+        public void User_ShouldThrowException_WhenPasswordContainsUsername()
+        {
+            string username = "melanie";
+            string password = "melanie123!";
+
+            Assert.ThrowsException<ArgumentException>(() => new User(username, password));
+        }
     }
 }
