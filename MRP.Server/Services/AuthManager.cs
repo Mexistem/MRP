@@ -31,7 +31,7 @@ namespace MRP.Server.Services
                 throw new UnauthorizedAccessException("Invalid password");
             }
 
-            return $"{username}-mrpToken";
+            return $"{user.Username.ToLower()}-mrpToken";
         }
     }
 }

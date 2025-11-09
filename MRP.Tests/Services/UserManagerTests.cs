@@ -14,12 +14,12 @@ namespace MRP.Tests.Services
     public sealed class UserManagerTests
     {
         [TestMethod]
-        public void AddUser_ShouldThrowException_WhenUsernameAlreadyExists()
+        public void AddUser_ShouldThrowException_WhenUsernameAlreadyExists_CaseInsensitive()
         {
             var manager = new UserManager();
             manager.AddUser(new User("melanie", "!123Password"));
 
-            Assert.ThrowsException<InvalidOperationException>(() => manager.AddUser(new User("melanie", "!123Password")));
+            Assert.ThrowsException<InvalidOperationException>(() => manager.AddUser(new User("mElAnIe", "!123Password")));
         }
 
     }

@@ -75,7 +75,7 @@ namespace MRP.Server.Models
                 return false;
             }
 
-            return Username == otherUser.Username;
+            return Username.Equals(otherUser.Username, StringComparison.OrdinalIgnoreCase);
         }
         public override int GetHashCode()
         {

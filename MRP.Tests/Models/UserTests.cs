@@ -44,10 +44,10 @@ namespace MRP.Tests.Models
         }
 
         [TestMethod]
-        public void Users_WithSameUsername_ShouldBeEqual()
+        public void Users_WithSameUsername_ShouldBeEqual_CaseInsensitive()
         {
             var userA = new User("melanie", "!123Password");
-            var userB = new User("melanie", "!123Password");
+            var userB = new User("mElAnIe", "!123Password");
 
             bool areEqual = userA.Equals(userB);
 

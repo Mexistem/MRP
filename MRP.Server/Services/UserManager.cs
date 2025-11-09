@@ -15,7 +15,7 @@ namespace MRP.Server.Services
 
         public void AddUser(User user)
         {
-            if (_users.Any(u => u.Username == user.Username))
+            if (_users.Any(u => u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidOperationException("A user with this username already exists");
             }
@@ -31,7 +31,7 @@ namespace MRP.Server.Services
 
         public User? GetUser(string username)
         {
-            return _users.FirstOrDefault(u => u.Username == username);
+            return _users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

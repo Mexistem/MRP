@@ -55,7 +55,7 @@ namespace MRP.Tests
 
             var authManager = new AuthManager(userManager);
 
-            string token = authManager.Login("MELANIE", "!123Password");
+            string token = authManager.Login("MeLaNiE", "!123Password");
 
             Assert.AreEqual("melanie-mrpToken", token);
         }
