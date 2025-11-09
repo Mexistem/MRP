@@ -59,5 +59,18 @@ namespace MRP.Tests
 
             Assert.AreEqual("melanie-mrpToken", token);
         }
+
+        [TestMethod]
+        public void Login_ShouldStoreTokenInternally()
+        {
+            var userManager = new UserManager();
+            userManager.Register("melanie", "!123Password");
+
+            var authManager = new AuthManager(userManager);
+
+            string token = authManager.Login("melanie", "!123Password");
+            string storedToken = authManager.GetToken("melanie");
+            Assert.AreEqual(token, storedToken);
+        }
     }
 }

@@ -26,10 +26,9 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 ### 2. Anmeldung (Login)
 - [x] Login mit korrekten Daten gibt gültigen Token zurück
 - [x] Login mit falschem Passwort wird abgelehnt
-- [ ] Login mit unbekanntem Benutzer wird abgelehnt
-- [ ] Login ist case-insensitive
-- [ ] Token enthält korrekten Benutzernamen und festen Suffix „-mrpToken“
-- [ ] Token wird intern gespeichert und ist eindeutig pro Benutzer
+- [x] Login mit unbekanntem Benutzer wird abgelehnt
+- [x] Login ist case-insensitive
+- [ ] Token wird intern gespeichert
 - [ ] Token Ablaufzeit ist korrekt gesetzt (+30 Minuten)
 - [ ] Gültiger Token wird akzeptiert
 - [ ] Abgelaufener Token wird abgelehnt

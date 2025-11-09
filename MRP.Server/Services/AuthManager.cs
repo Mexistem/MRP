@@ -33,5 +33,10 @@ namespace MRP.Server.Services
 
             return $"{user.Username.ToLower()}-mrpToken";
         }
+
+        public string? GetToken(string username)
+        {
+            return null;
+        }
     }
 }
