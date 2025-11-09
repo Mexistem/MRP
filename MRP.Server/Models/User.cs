@@ -22,6 +22,7 @@ namespace MRP.Server.Models
 
             Username = username;
             Password = HashPassword(password);
+            CreatedAt = DateTime.Now;
         }
 
         private static void ValidateUsername(string username)
