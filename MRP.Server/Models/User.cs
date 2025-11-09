@@ -61,7 +61,7 @@ namespace MRP.Server.Models
             }
         }
 
-        private static string HashPassword(string password)
+        public static string HashPassword(string password)
         {
                 byte[] bytes = System.Text.Encoding.UTF8.GetBytes(password);
                 byte[] hash = System.Security.Cryptography.SHA256.HashData(bytes);

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using MRP.Server.Models;
+
 namespace MRP.Server.Services
 {
     public class AuthManager
@@ -17,6 +19,18 @@ namespace MRP.Server.Services
         public string Login(string username, string password)
         {
             var user = _userManager.GetUser(username);
+
+
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found");
+            }
+
+            if(user.Password != User.HashPassword(password))
+            {
+                throw new UnauthorizedAccessException("Invalid password");
+            }
+
             return $"{username}-mrpToken";
         }
     }
