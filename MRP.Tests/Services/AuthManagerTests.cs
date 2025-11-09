@@ -17,13 +17,25 @@ namespace MRP.Tests
         public void Login_WithValidCredentials_ReturnsValidToken()
         {
             var userManager = new UserManager();
-            userManager.Register("melanie", "Test123!");
+            userManager.Register("melanie", "!123Password");
 
             var authManager = new AuthManager(userManager);
 
-            string token = authManager.Login("melanie", "Test123!");
+            string token = authManager.Login("melanie", "!123Password");
 
             Assert.AreEqual("melanie-mrpToken", token);
+        }
+
+        [TestMethod]
+        public void Login_WithInvalidPassword_ShouldThrowException()
+        {
+            var userManager = new UserManager();
+            userManager.Register("melanie", "!123Password");
+
+            var authManager = new AuthManager(userManager);
+
+            Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.Login("melanie", "123!Password"));
+
         }
     }
 }
