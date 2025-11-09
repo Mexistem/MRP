@@ -10,7 +10,7 @@ namespace MRP.Tests.Models
         [TestMethod]
         public void User_CanBeCreated()
         {
-            var user = new User();
+            var user = new User("melanie", "!123Password");
 
             Assert.IsNotNull(user);
         }
@@ -20,7 +20,7 @@ namespace MRP.Tests.Models
         {
             string emptyUsername = "";
 
-            Assert.ThrowsException<ArgumentException>(() => new User(emptyUsername));
+            Assert.ThrowsException<ArgumentException>(() => new User(emptyUsername, "!123Password"));
         }
 
         [TestMethod]
@@ -28,15 +28,16 @@ namespace MRP.Tests.Models
         {
             string whitespaceUsername = "   ";
 
-            Assert.ThrowsException<ArgumentException>(() => new User(whitespaceUsername));
+            Assert.ThrowsException<ArgumentException>(() => new User(whitespaceUsername, "!123Password"));
         }
 
         [TestMethod]
         public void User_ShouldStoreUsername_WhenValid()
         {
             string validUsername = "melanie";
+            string password = "!123Password";
 
-            var user = new User(validUsername);
+            var user = new User(validUsername, password);
 
             Assert.AreEqual(validUsername, user.Username);
         }
@@ -44,8 +45,8 @@ namespace MRP.Tests.Models
         [TestMethod]
         public void Users_WithSameUsername_ShouldBeEqual()
         {
-            var userA = new User("melanie");
-            var userB = new User("melanie");
+            var userA = new User("melanie", "!123Password");
+            var userB = new User("melanie", "!123Password");
 
             bool areEqual = userA.Equals(userB);
 
@@ -56,8 +57,8 @@ namespace MRP.Tests.Models
         [TestMethod]
         public void Users_WithDifferentUsernames_ShouldNotBeEqual()
         {
-            var userA = new User("melanie");
-            var userB = new User("lena");
+            var userA = new User("melanie", "!123Password");
+            var userB = new User("lena", "!123Password");
 
             bool areEqual = userA.Equals(userB);
 
@@ -69,7 +70,7 @@ namespace MRP.Tests.Models
         {
             string invalidUsername = "Mel@n?e!";
 
-            Assert.ThrowsException<ArgumentException>( () => new User(invalidUsername, password));
+            Assert.ThrowsException<ArgumentException>( () => new User(invalidUsername, "!123Password"));
         }
 
         [TestMethod]
@@ -77,7 +78,7 @@ namespace MRP.Tests.Models
         {
             string tooLongUsername = new string('a', 31);
 
-            Assert.ThrowsException<ArgumentException>(() => new User(tooLongUsername, password));
+            Assert.ThrowsException<ArgumentException>(() => new User(tooLongUsername, "!123Password"));
 
         }
 
@@ -86,7 +87,7 @@ namespace MRP.Tests.Models
         {
             string tooShortUsername = "ab";
 
-            Assert.ThrowsException<ArgumentException>(() => new User(tooShortUsername, password));
+            Assert.ThrowsException<ArgumentException>(() => new User(tooShortUsername, "!123Password"));
 
         }
 

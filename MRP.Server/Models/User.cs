@@ -9,8 +9,7 @@ namespace MRP.Server.Models
     public class User
     {
         public string Username { get; } = null!;
-
-        public User() { }
+        public string Password { get; private set; } = null!;
 
         public User(string username, string password) 
         {
@@ -29,7 +28,13 @@ namespace MRP.Server.Models
                 throw new ArgumentException("Username must be between 3 and 30 characters long", nameof(username));
             }
 
+            if(string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("Password is not allowed to be empty or contain only whitespace", nameof(password));
+            }
+
             Username = username;
+            Password = password;
         }
 
         public override bool Equals(object? obj)
