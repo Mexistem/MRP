@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using MRP.Server.Models;
+using System.Reflection.Metadata;
 
 namespace MRP.Tests.Models
 {
@@ -123,6 +124,18 @@ namespace MRP.Tests.Models
             string password = "melanie123!";
 
             Assert.ThrowsException<ArgumentException>(() => new User(username, password));
+        }
+
+        [TestMethod]
+
+        public void User_ShouldStorePasswordAsHashedValue()
+        {
+            string username = "melanie";
+            string password = "!123Password";
+
+            var user = new User(username, password);
+
+            Assert.AreNotEqual(password, user.Password);
         }
     }
 }
