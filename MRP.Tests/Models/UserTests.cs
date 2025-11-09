@@ -76,7 +76,7 @@ namespace MRP.Tests.Models
         [TestMethod]
         public void User_ShouldThrowException_WhenUsernameIsTooLong()
         {
-            string tooLongUsername = new string('a', 31);
+            string tooLongUsername = new('a', 31);
 
             Assert.ThrowsException<ArgumentException>(() => new User(tooLongUsername, "!123Password"));
 
@@ -98,6 +98,21 @@ namespace MRP.Tests.Models
             string emptyPassword = "";
 
             Assert.ThrowsException<ArgumentException>(() => new User(username, emptyPassword));
+        }
+
+        [TestMethod]
+
+        public void User_ShouldThrowException_WhenPasswordDoesNotMeetComplexityRequirements()
+        {
+            string username = "melanie";
+            string tooShortPassword = "Ab1!";
+            string noNumberPassword = "Abcdef!";
+            string noSpecialPassword = "Abcdef1";
+
+            Assert.ThrowsException<ArgumentException>(() => new User(username, tooShortPassword));
+            Assert.ThrowsException<ArgumentException>(() => new User(username, noNumberPassword));
+            Assert.ThrowsException<ArgumentException>(() => new User(username, noSpecialPassword));
+
         }
     }
 }
