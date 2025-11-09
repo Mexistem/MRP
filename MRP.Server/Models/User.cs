@@ -24,6 +24,11 @@ namespace MRP.Server.Models
                 throw new ArgumentException("Username cannot contain special characters", nameof(username));
             }
 
+            if(username.Length > 30)
+            {
+                throw new ArgumentException("Username is exceeding maximum length", nameof(username));
+            }
+
             Username = username;
         }
 
