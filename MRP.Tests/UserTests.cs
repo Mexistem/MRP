@@ -62,5 +62,13 @@ namespace MRP.Tests
 
             Assert.IsFalse(areEqual);
         }
+
+        [TestMethod]
+        public void User_ShouldThrowException_WhenUsernameContainsSpecialCharacters()
+        {
+            string invalidUsername = "Mel@n?e!";
+
+            Assert.ThrowsException<ArgumentException>( () => new User(invalidUsername));
+        }
     }
 }
