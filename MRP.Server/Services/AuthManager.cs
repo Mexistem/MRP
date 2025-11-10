@@ -11,7 +11,7 @@ namespace MRP.Server.Services
     public class AuthManager
     {
         private readonly UserManager _userManager;
-        private readonly Dictionary<string, string> _tokens = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, TokenInfo> _tokens = new(StringComparer.OrdinalIgnoreCase);
         public AuthManager(UserManager userManager)
         {
             _userManager = userManager;
@@ -32,20 +32,26 @@ namespace MRP.Server.Services
                 throw new UnauthorizedAccessException("Invalid password");
             }
 
-            string token = $"{user.Username.ToLower()}-mrpToken";
+            string tokenString = $"{user.Username.ToLower()}-mrpToken";
+
+            var tokenInfo = new TokenInfo
+            {
+                Token = tokenString,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(30)
+            };
 
             if(!_tokens.ContainsKey(user.Username))
             {
-                _tokens[user.Username] = token;
+                _tokens[user.Username] = tokenInfo;
             }
 
-            return _tokens[user.Username];
+            return _tokens[user.Username].Token;
         }
 
-        public string? GetToken(string username)
+        public TokenInfo? GetTokenInfo(string username)
         {
-            _tokens.TryGetValue(username.ToLower(), out string? token);
-            return token;
+            _tokens.TryGetValue(username, out TokenInfo? info);
+            return info;
         }
     }
 }

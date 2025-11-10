@@ -69,8 +69,26 @@ namespace MRP.Tests
             var authManager = new AuthManager(userManager);
 
             string token = authManager.Login("melanie", "!123Password");
-            string storedToken = authManager.GetToken("melanie");
-            Assert.AreEqual(token, storedToken);
+            var storedTokenInfo = authManager.GetTokenInfo("melanie");
+
+            Assert.IsNotNull(storedTokenInfo);
+            Assert.AreEqual(token, storedTokenInfo.Token);
+        }
+
+        [TestMethod]
+        public void Token_ShouldExpireAfter30Minutes()
+        {
+            var userManager = new UserManager();
+            userManager.Register("melanie", "!123Password");
+
+            var authManager = new AuthManager(userManager);
+
+            authManager.Login("melanie", "!123Password");
+            var tokenInfo = authManager.GetTokenInfo("melanie");
+
+            Assert.IsNotNull(tokenInfo);
+            var difference = tokenInfo.ExpiresAt - DateTime.UtcNow;
+            Assert.IsTrue(difference.TotalMinutes >= 29.9 && difference.TotalMinutes <= 30.1);
         }
     }
 }
