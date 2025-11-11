@@ -54,17 +54,16 @@ namespace MRP.Server.Services
 
         public void ValidateToken(string username, string token)
         {
-            if(string.IsNullOrWhiteSpace(username))
-            {
-                throw new ArgumentException("Username cannot be empty", nameof(username));
-            }
-
             if (!_tokens.TryGetValue(username, out var info))
             {
                 throw new UnauthorizedAccessException("No active token found");
             }
 
-            if (_tokens[username].ExpiresAt <= DateTime.UtcNow)
+            if(info.Token != token)
+            {
+                throw new UnauthorizedAccessException("Invalid Token");
+            }
+            if (info.ExpiresAt <= DateTime.UtcNow)
             {
                 throw new UnauthorizedAccessException("Token expired");
             }
