@@ -13,27 +13,33 @@ namespace MRP.Tests
     [TestClass]
     public sealed class AuthManagerTests
     {
-        [TestMethod]
-        public void Login_WithValidCredentials_ReturnsValidToken()
+        private UserManager userManager = null!;
+        private AuthManager authManager = null!;
+
+        [TestInitialize]
+        public void Setup()
         {
-            var userManager = new UserManager();
+            userManager = new UserManager();
             userManager.Register("melanie", "!123Password");
+            authManager = new AuthManager(userManager);
+        }
 
-            var authManager = new AuthManager(userManager);
-
+        [TestMethod]
+        public void Login_WithValidCredentials_CreatesAndStoresToken()
+        {
             string token = authManager.Login("melanie", "!123Password");
 
-            Assert.AreEqual("melanie-mrpToken", token);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(token));
+
+            var storedToken = authManager.GetTokenInfo("melanie");
+
+            Assert.IsNotNull(storedToken);
+            Assert.AreEqual(token, storedToken.Token);
         }
 
         [TestMethod]
         public void Login_WithInvalidPassword_ShouldThrowException()
         {
-            var userManager = new UserManager();
-            userManager.Register("melanie", "!123Password");
-
-            var authManager = new AuthManager(userManager);
-
             Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.Login("melanie", "123!Password"));
 
         }
@@ -41,54 +47,41 @@ namespace MRP.Tests
         [TestMethod]
         public void Login_WithUnknownUser_ShouldThrowException()
         {
-            var userManager = new UserManager();
-            var authManager = new AuthManager(userManager);
-
             Assert.ThrowsException<InvalidOperationException>(() => authManager.Login("unknown", "something"));
         }
 
         [TestMethod]
         public void Login_ShouldBeCaseInsensitive()
         {
-            var userManager = new UserManager();
-            userManager.Register("melanie", "!123Password");
-
-            var authManager = new AuthManager(userManager);
-
             string token = authManager.Login("MeLaNiE", "!123Password");
 
-            Assert.AreEqual("melanie-mrpToken", token);
-        }
-
-        [TestMethod]
-        public void Login_ShouldStoreTokenInternally()
-        {
-            var userManager = new UserManager();
-            userManager.Register("melanie", "!123Password");
-
-            var authManager = new AuthManager(userManager);
-
-            string token = authManager.Login("melanie", "!123Password");
-            var storedTokenInfo = authManager.GetTokenInfo("melanie");
-
-            Assert.IsNotNull(storedTokenInfo);
-            Assert.AreEqual(token, storedTokenInfo.Token);
+            Assert.AreEqual(token, authManager.GetTokenInfo("melanie")?.Token);
         }
 
         [TestMethod]
         public void Token_ShouldExpireAfter30Minutes()
         {
-            var userManager = new UserManager();
-            userManager.Register("melanie", "!123Password");
-
-            var authManager = new AuthManager(userManager);
-
             authManager.Login("melanie", "!123Password");
             var tokenInfo = authManager.GetTokenInfo("melanie");
 
             Assert.IsNotNull(tokenInfo);
+
             var difference = tokenInfo.ExpiresAt - DateTime.UtcNow;
+
             Assert.IsTrue(difference.TotalMinutes >= 29.9 && difference.TotalMinutes <= 30.1);
+        }
+
+        [TestMethod]
+        public void ExpiredToken_ShouldBeRejected()
+        {
+            authManager.Login("melanie", "!123Password");
+            var tokenInfo = authManager.GetTokenInfo("melanie");
+
+            Assert.IsNotNull(tokenInfo);
+
+            tokenInfo.ExpiresAt = DateTime.UtcNow.AddMinutes(-1);
+
+            Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.ValidateToken("melanie"));
         }
     }
 }

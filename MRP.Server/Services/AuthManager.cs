@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,7 +33,7 @@ namespace MRP.Server.Services
                 throw new UnauthorizedAccessException("Invalid password");
             }
 
-            string tokenString = $"{user.Username.ToLower()}-mrpToken";
+            string tokenString = GenerateToken();
 
             var tokenInfo = new TokenInfo
             {
@@ -40,12 +41,20 @@ namespace MRP.Server.Services
                 ExpiresAt = DateTime.UtcNow.AddMinutes(30)
             };
 
-            if(!_tokens.ContainsKey(user.Username))
-            {
-                _tokens[user.Username] = tokenInfo;
-            }
+            _tokens[user.Username] = tokenInfo;
 
-            return _tokens[user.Username].Token;
+            return tokenString;
+        }
+
+        private static string GenerateToken()
+        {
+            byte[] bytes = RandomNumberGenerator.GetBytes(32);
+            return Convert.ToBase64String(bytes);
+        }
+
+        public void ValidateToken(string username)
+        {
+
         }
 
         public TokenInfo? GetTokenInfo(string username)

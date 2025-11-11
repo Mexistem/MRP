@@ -17,9 +17,9 @@ namespace MRP.Tests.Services
         public void AddUser_ShouldThrowException_WhenUsernameAlreadyExists_CaseInsensitive()
         {
             var manager = new UserManager();
-            manager.AddUser(new User("melanie", "!123Password"));
+            manager.Register("melanie", "!123Password");
 
-            Assert.ThrowsException<InvalidOperationException>(() => manager.AddUser(new User("mElAnIe", "!123Password")));
+            Assert.ThrowsException<InvalidOperationException>(() => manager.Register("mElAnIe", "!123Password"));
         }
 
     }

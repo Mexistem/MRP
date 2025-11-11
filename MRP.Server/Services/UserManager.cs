@@ -13,7 +13,7 @@ namespace MRP.Server.Services
         private readonly List<User> _users = [];
         public UserManager() { }
 
-        public void AddUser(User user)
+        private void AddUser(User user)
         {
             if (_users.Any(u => u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase)))
             {

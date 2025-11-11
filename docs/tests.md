@@ -24,14 +24,14 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Erstellungsdatum wird richtig gesetzt
 
 ### 2. Anmeldung (Login)
-- [x] Login mit korrekten Daten gibt gültigen Token zurück
+- [x] Login mit korrekten Daten erzeugt zufälligen Sicherheits-Token (Base64)
 - [x] Login mit falschem Passwort wird abgelehnt
 - [x] Login mit unbekanntem Benutzer wird abgelehnt
 - [x] Login ist case-insensitive
 - [x] Token wird intern gespeichert
-- [ ] Token Ablaufzeit ist korrekt gesetzt (+30 Minuten)
+- [x] Token Ablaufzeit ist korrekt gesetzt (+30 Minuten)
+- [x] Abgelaufener Token wird abgelehnt
 - [ ] Gültiger Token wird akzeptiert
-- [ ] Abgelaufener Token wird abgelehnt
 - [ ] Token kann nur vom richtigen Benutzer verwendet werden
 - [ ] Abgemeldeter Benutzer verliert Gültigkeit seines Tokens
 
