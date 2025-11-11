@@ -46,6 +46,11 @@ namespace MRP.Server.Services
             return tokenString;
         }
 
+        public void Logout(string username)
+        {
+
+        }
+
         private static string GenerateToken()
         {
             byte[] bytes = RandomNumberGenerator.GetBytes(32);

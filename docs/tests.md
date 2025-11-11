@@ -31,7 +31,7 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Token wird intern gespeichert
 - [x] Token Ablaufzeit ist korrekt gesetzt (+30 Minuten)
 - [x] Token wird angenommen oder abgelehnt wenn abgelaufen
-- [ ] Token kann nur vom richtigen Benutzer verwendet werden
+- [x] Token kann nur vom richtigen Benutzer verwendet werden
 - [ ] Abgemeldeter Benutzer verliert Gültigkeit seines Tokens
 
 ### 3. Benutzerstatistik

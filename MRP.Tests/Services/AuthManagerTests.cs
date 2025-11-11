@@ -94,13 +94,23 @@ namespace MRP.Tests
             authManager.Login("lena", "!123Password");
 
             var melanieToken = authManager.GetTokenInfo("melanie")?.Token;
+
             Assert.IsNotNull(melanieToken);
 
-            Assert.ThrowsException<UnauthorizedAccessException>(() =>
-            {
-                authManager.ValidateToken("lena", melanieToken);
-            });
+            Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.ValidateToken("lena", melanieToken));
         }
 
+        [TestMethod]
+        public void LoggedOutUser_LosesTokenValidity()
+        {
+            authManager.Login("melanie", "!123Password");
+            var tokenInfo = authManager.GetTokenInfo("melanie");
+
+            Assert.IsNotNull(tokenInfo);
+
+            authManager.Logout("melanie");
+
+            Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.ValidateToken("melanie", tokenInfo!.Token));
+        }
     }
 }
