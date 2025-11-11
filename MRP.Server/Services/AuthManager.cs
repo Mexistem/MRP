@@ -52,9 +52,22 @@ namespace MRP.Server.Services
             return Convert.ToBase64String(bytes);
         }
 
-        public void ValidateToken(string username)
+        public void ValidateToken(string username, string token)
         {
+            if(string.IsNullOrWhiteSpace(username))
+            {
+                throw new ArgumentException("Username cannot be empty", nameof(username));
+            }
 
+            if (!_tokens.TryGetValue(username, out var info))
+            {
+                throw new UnauthorizedAccessException("No active token found");
+            }
+
+            if (_tokens[username].ExpiresAt <= DateTime.UtcNow)
+            {
+                throw new UnauthorizedAccessException("Token expired");
+            }
         }
 
         public TokenInfo? GetTokenInfo(string username)

@@ -72,16 +72,35 @@ namespace MRP.Tests
         }
 
         [TestMethod]
-        public void ExpiredToken_ShouldBeRejected()
+        public void Token_ShouldBeAcceptedOrRejected()
         {
             authManager.Login("melanie", "!123Password");
             var tokenInfo = authManager.GetTokenInfo("melanie");
 
             Assert.IsNotNull(tokenInfo);
 
+            authManager.ValidateToken("melanie", tokenInfo.Token);
+
             tokenInfo.ExpiresAt = DateTime.UtcNow.AddMinutes(-1);
 
-            Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.ValidateToken("melanie"));
+            Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.ValidateToken("melanie", tokenInfo.Token));
         }
+
+        [TestMethod]
+        public void Token_CanOnlyBeUsedByAssignedUser()
+        {
+            userManager.Register("lena", "!123Password");
+            authManager.Login("melanie", "!123Password");
+            authManager.Login("lena", "!123Password");
+
+            var melanieToken = authManager.GetTokenInfo("melanie")?.Token;
+            Assert.IsNotNull(melanieToken);
+
+            Assert.ThrowsException<UnauthorizedAccessException>(() =>
+            {
+                authManager.ValidateToken("lena", melanieToken);
+            });
+        }
+
     }
 }
