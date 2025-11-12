@@ -73,6 +73,7 @@ namespace MRP.Server.Services
             }
             if (info.ExpiresAt <= DateTime.UtcNow)
             {
+                _tokens.Remove(username);
                 throw new UnauthorizedAccessException("Token expired");
             }
         }
