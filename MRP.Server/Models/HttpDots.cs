@@ -15,13 +15,4 @@ namespace MRP.Server.Models
         [JsonPropertyName("password")]
         public string Password { get; set; } = string.Empty;
     }
-
-    public sealed class ErrorResponse
-    {
-        [JsonPropertyName("error")]
-        public string Error { get; set; } = string.Empty;
-
-        [JsonPropertyName("details")]
-        public string Details { get; set; } = string.Empty;
-    }
 }

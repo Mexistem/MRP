@@ -32,8 +32,9 @@ namespace MRP.Server.Http
 
         public async Task StartAsync(CancellationToken cancellationToken = default)
         {
+            _listener.Prefixes.Add("http://localhost:8080/");
             _listener.Start();
-            Console.WriteLine("Http Server started");
+            Console.WriteLine("Http Server started on http://localhost:8080");
 
             try
             {
@@ -85,18 +86,21 @@ namespace MRP.Server.Http
 
                 else
                 {
-                    await WriteJsonAsync(response, HttpStatusCode.NotFound, new ErrorResponse { Error = "Not Found" });
+                    await WriteJsonAsync(response, HttpStatusCode.NotFound, new { error = "Not Found" });
                 }
             }
 
             catch (Exception exception)
             {
-                await WriteJsonAsync(response, HttpStatusCode.InternalServerError, new ErrorResponse { Error = "Internal Server Error", Details = exception.Message });
+                await WriteJsonAsync(response, HttpStatusCode.InternalServerError, new { error = "Internal Server Error", Details = exception.Message });
             }
 
             finally
             {
-                response.Close();
+                if (response.OutputStream.CanWrite)
+                {
+                    response.Close();
+                }
             }
         }
 
@@ -107,13 +111,14 @@ namespace MRP.Server.Http
 
             if(request.ContentType?.Contains("application/json") != true)
             {
-                await WriteJsonAsync(response, HttpStatusCode.BadRequest, new ErrorResponse { Error = "Invalid Content-Type", Details = "Use application/json" });
+                await WriteJsonAsync(response, HttpStatusCode.BadRequest, new { error = "Invalid Content-Type", Details = "Use application/json" });
+                return;
             }
 
             var login = await ReadJsonAsync<LoginRequest>(request);
             if(login is null || string.IsNullOrWhiteSpace(login.Username) || string.IsNullOrWhiteSpace(login.Password))
             {
-                await WriteJsonAsync(response, HttpStatusCode.BadRequest, new ErrorResponse { Error = "Invalid body", Details = "username and password required" });
+                await WriteJsonAsync(response, HttpStatusCode.BadRequest, new { error = "Invalid body", Details = "username and password required" });
                 return;
             }
 
@@ -125,11 +130,11 @@ namespace MRP.Server.Http
 
             catch (InvalidOperationException)
             {
-                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new ErrorResponse { Error = "Unknown user" });
+                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new { error = "Unknown user" });
             }
             catch (UnauthorizedAccessException)
             {
-                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new ErrorResponse { Error = "Invalid credentials" });
+                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new { error = "Invalid credentials" });
             }
         }
 
@@ -140,13 +145,14 @@ namespace MRP.Server.Http
 
             if (request.ContentType?.Contains("application/json") != true)
             {
-                await WriteJsonAsync(response, HttpStatusCode.BadRequest, new ErrorResponse { Error = "Invalid Content-Type", Details = "Use application/json" });
+                await WriteJsonAsync(response, HttpStatusCode.BadRequest, new { error = "Invalid Content-Type", Details = "Use application/json" });
+                return;
             }
 
             var register = await ReadJsonAsync<LoginRequest>(request);
             if(register is null || string.IsNullOrWhiteSpace(register.Username) || string.IsNullOrWhiteSpace(register.Password))
             {
-                await WriteJsonAsync(response, HttpStatusCode.BadRequest, new ErrorResponse { Error = "Invalid body", Details = "username and password required" });
+                await WriteJsonAsync(response, HttpStatusCode.BadRequest, new { error = "Invalid body", Details = "username and password required" });
                 return;
             }
 
@@ -156,9 +162,9 @@ namespace MRP.Server.Http
                 await WriteJsonAsync(response, HttpStatusCode.Created, new { message = "User created successfully" });
             }
 
-            catch(InvalidOperationException exception)
+            catch (InvalidOperationException exception)
             {
-                await WriteJsonAsync(response, HttpStatusCode.Conflict, new ErrorResponse { Error = exception.Message });
+                await WriteJsonAsync(response, HttpStatusCode.Conflict, new { error = exception.Message });
             }
 
         }
@@ -169,9 +175,9 @@ namespace MRP.Server.Http
             var response = context.Response;
 
             string? authHeader = request.Headers["Authorization"];
-            if (authHeader is null || !authHeader.StartsWith("Bearer "))
+            if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer ") || string.IsNullOrWhiteSpace(authHeader.Substring("Bearer ".Length).Trim()))
             {
-                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new ErrorResponse { Error = "Missing bearer token" });
+                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new { error = "missing bearer token" });
                 return;
             }
 
@@ -180,7 +186,7 @@ namespace MRP.Server.Http
             var matchingUser = _auth.GetUsernameByToken(token);
             if (matchingUser == null)
             {
-                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new ErrorResponse { Error = "Invalid or expired token" });
+                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new { error = "Invalid or expired token" });
                 return;
             }
 
@@ -195,9 +201,9 @@ namespace MRP.Server.Http
             var response = context.Response;
 
             string? authHeader = request.Headers["Authorization"];
-            if (authHeader is null || !authHeader.StartsWith("Bearer "))
+            if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer ") || string.IsNullOrWhiteSpace(authHeader.Substring("Bearer ".Length)))
             {
-                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new ErrorResponse { Error = "Missing bearer token" });
+                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new { error = "Missing bearer token" });
                 return;
             }
 
@@ -209,14 +215,14 @@ namespace MRP.Server.Http
             }
             catch (UnauthorizedAccessException exception)
             {
-                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new ErrorResponse { Error = exception.Message });
+                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new { error = exception.Message });
                 return;
             }
 
             var user = _users.GetUser(usernameInPath);
             if (user is null)
             {
-                await WriteJsonAsync(response, HttpStatusCode.NotFound, new ErrorResponse { Error = "User not found" });
+                await WriteJsonAsync(response, HttpStatusCode.NotFound, new { error = "User not found" });
                 return;
             }
 
@@ -231,6 +237,11 @@ namespace MRP.Server.Http
 
         private static async Task<T?> ReadJsonAsync<T>(HttpListenerRequest request)
         {
+            if (request.InputStream == Stream.Null || request.ContentEncoding == null)
+            {
+                return default;
+            }
+
             using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
             string body = await reader.ReadToEndAsync();
 

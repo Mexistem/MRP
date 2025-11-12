@@ -62,19 +62,24 @@ namespace MRP.Server.Services
 
         public void ValidateToken(string username, string token)
         {
+            if (string.IsNullOrWhiteSpace(token))
+            { 
+                throw new UnauthorizedAccessException("Missing bearer token");
+            }
+
             if (!_tokens.TryGetValue(username, out var info))
             {
-                throw new UnauthorizedAccessException("No active token found");
+                throw new UnauthorizedAccessException("Invalid or expired token");
             }
 
             if(info.Token != token)
             {
-                throw new UnauthorizedAccessException("Invalid Token");
+                throw new UnauthorizedAccessException("Invalid or expired token");
             }
             if (info.ExpiresAt <= DateTime.UtcNow)
             {
                 _tokens.Remove(username);
-                throw new UnauthorizedAccessException("Token expired");
+                throw new UnauthorizedAccessException("Invalid or expired token");
             }
         }
 
