@@ -83,6 +83,11 @@ namespace MRP.Server.Http
                     await HandleProfileAsync(context, username);
                 }
 
+                else if (path.StartsWith("/api/admin/", StringComparison.OrdinalIgnoreCase))
+                {
+                    await HandleAdminRoutesAsync(context);
+                }
+
                 else
                 {
                     await WriteJsonAsync(response, HttpStatusCode.NotFound, new { error = "Not Found" });
@@ -148,7 +153,7 @@ namespace MRP.Server.Http
                 return;
             }
 
-            var register = await ReadJsonAsync<LoginRequest>(request);
+            var register = await ReadJsonAsync<RegisterRequest>(request);
             if(register is null || string.IsNullOrWhiteSpace(register.Username) || string.IsNullOrWhiteSpace(register.Password))
             {
                 await WriteJsonAsync(response, HttpStatusCode.BadRequest, new { error = "Invalid body", Details = "username and password required" });
@@ -157,8 +162,15 @@ namespace MRP.Server.Http
 
             try
             {
-                _users.Register(register.Username, register.Password);
-                await WriteJsonAsync(response, HttpStatusCode.Created, new { message = "User created successfully" });
+                if (register.IsAdmin)
+                {
+                    _users.RegisterAdmin(register.Username, register.Password);
+                }
+                else
+                {
+                    _users.Register(register.Username, register.Password);
+                }
+                await WriteJsonAsync(response, HttpStatusCode.Created, new { message = register.IsAdmin ? "Admin created successfully" : "User created successfully" });
             }
 
             catch (InvalidOperationException exception)
@@ -225,11 +237,7 @@ namespace MRP.Server.Http
                 return;
             }
 
-            var profile = new
-            {
-                username = user.Username, 
-                createdAt = user.CreatedAt
-            };
+            var profile = new { username = user.Username, createdAt = user.CreatedAt };
 
             await WriteJsonAsync(response, HttpStatusCode.OK, profile);
         }

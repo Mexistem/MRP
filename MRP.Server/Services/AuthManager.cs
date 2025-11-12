@@ -99,5 +99,22 @@ namespace MRP.Server.Services
 
             return null;
         }
+
+        public bool IsAdmin(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return false;
+            }
+
+            var user = _userManager.GetUser(username);
+
+            if (user is null)
+            {
+                return false;
+            }
+
+            return user is Admin;
+        }
     }
 }
