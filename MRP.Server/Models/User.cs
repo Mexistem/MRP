@@ -15,6 +15,8 @@ namespace MRP.Server.Models
         public string Username { get; }
         public string Password { get; private set; }
 
+        public virtual string Role => "User";
+
         public DateTime CreatedAt { get; private set; }
 
         public User(string username, string password)

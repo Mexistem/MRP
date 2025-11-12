@@ -33,5 +33,11 @@ namespace MRP.Server.Services
         {
             return _users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
         }
+
+        public void RegisterAdmin(string username, string password)
+        {
+            var admin = new Admin(username, password);
+            AddUser(admin);
+        }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace MRP.Server.Models
+namespace MRP.Server.Http
 {
     public sealed class LoginRequest
     {

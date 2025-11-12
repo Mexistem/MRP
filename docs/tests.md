@@ -48,11 +48,13 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [ ] Titel darf nicht leer sein
 - [ ] Medientyp muss gültig sein (Film, Serie, Spiel)
 - [ ] Erstellungsdatum wird richtig gespeichert
+- [ ] Es darf keine zwei Medien mit gleichem Namen (caseinsensitive) geben
 
 ### 2. Medien bearbeiten
 - [ ] Nur Ersteller darf Medium bearbeiten
 - [ ] Änderungen werden korrekt übernommen
 - [ ] Ungültige Änderungen werden abgelehnt
+- [ ] Änderungszeitpunkt wird richtig gesetzt
 
 ### 3. Medien löschen
 - [ ] Nur Ersteller darf Medium löschen
