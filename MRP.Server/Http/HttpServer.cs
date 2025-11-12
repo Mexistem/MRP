@@ -72,6 +72,11 @@ namespace MRP.Server.Http
                     await HandleRegisterAsync(context);
                 }
 
+                else if (method == "POST" && path == "/api/users/logout")
+                {
+                    await HandleLogoutAsync(context);
+                }
+
                 else if (method == "GET" && path.StartsWith("/api/users/") && path.EndsWith("/profile"))
                 {
                     string username = path.Split('/', StringSplitOptions.RemoveEmptyEntries)[2];
@@ -156,6 +161,32 @@ namespace MRP.Server.Http
                 await WriteJsonAsync(response, HttpStatusCode.Conflict, new ErrorResponse { Error = exception.Message });
             }
 
+        }
+
+        private async Task HandleLogoutAsync(HttpListenerContext context)
+        {
+            var request = context.Request;
+            var response = context.Response;
+
+            string? authHeader = request.Headers["Authorization"];
+            if (authHeader is null || !authHeader.StartsWith("Bearer "))
+            {
+                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new ErrorResponse { Error = "Missing bearer token" });
+                return;
+            }
+
+            string token = authHeader.Substring("Bearer ".Length).Trim();
+
+            var matchingUser = _auth.GetUsernameByToken(token);
+            if (matchingUser == null)
+            {
+                await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new ErrorResponse { Error = "Invalid or expired token" });
+                return;
+            }
+
+            _auth.Logout(matchingUser);
+
+            await WriteJsonAsync(response, HttpStatusCode.OK, new { message = "Logout successful" });
         }
 
         private async Task HandleProfileAsync(HttpListenerContext context, string usernameInPath)

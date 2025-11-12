@@ -82,5 +82,16 @@ namespace MRP.Server.Services
             _tokens.TryGetValue(username, out TokenInfo? info);
             return info;
         }
+
+        public string? GetUsernameByToken(string token)
+        {
+            foreach (var keyvaluepair in _tokens)
+            {
+                if (keyvaluepair.Value.Token == token)
+                    return keyvaluepair.Key;
+            }
+
+            return null;
+        }
     }
 }
