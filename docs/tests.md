@@ -12,7 +12,6 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Benutzer kann erstellt werden
 - [x] Benutzername darf nicht leer sein oder nur aus Leerzeichen bestehen
 - [x] Benutzername soll richtig gespeichert werden
-- [x] Zwei Benutzer mit gleichem Namen gelten als gleich
 - [x] Benutzername darf keine Sonderzeichen enthalten
 - [x] Benutzername darf nicht zu lang sein
 - [x] Benutzername darf nicht zu kurz sein

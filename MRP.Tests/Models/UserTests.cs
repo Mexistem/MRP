@@ -44,29 +44,6 @@ namespace MRP.Tests.Models
         }
 
         [TestMethod]
-        public void Users_WithSameUsername_ShouldBeEqual_CaseInsensitive()
-        {
-            var userA = new User("melanie", "!123Password");
-            var userB = new User("mElAnIe", "!123Password");
-
-            bool areEqual = userA.Equals(userB);
-
-            Assert.IsTrue(areEqual);
-
-        }
-
-        [TestMethod]
-        public void Users_WithDifferentUsernames_ShouldNotBeEqual()
-        {
-            var userA = new User("melanie", "!123Password");
-            var userB = new User("lena", "!123Password");
-
-            bool areEqual = userA.Equals(userB);
-
-            Assert.IsFalse(areEqual);
-        }
-
-        [TestMethod]
         public void User_ShouldThrowException_WhenUsernameContainsSpecialCharacters()
         {
             string invalidUsername = "Mel@n?e!";

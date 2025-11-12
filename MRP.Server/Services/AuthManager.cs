@@ -28,7 +28,7 @@ namespace MRP.Server.Services
                 throw new InvalidOperationException("User not found");
             }
 
-            if(user.Password != User.HashPassword(password))
+            if(user.Password != User.HashPassword(username, password))
             {
                 throw new UnauthorizedAccessException("Invalid password");
             }
@@ -48,7 +48,10 @@ namespace MRP.Server.Services
 
         public void Logout(string username)
         {
-
+            if(_tokens.ContainsKey(username))
+            {
+                _tokens.Remove(username);
+            }
         }
 
         private static string GenerateToken()

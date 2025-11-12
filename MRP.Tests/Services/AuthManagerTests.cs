@@ -110,7 +110,7 @@ namespace MRP.Tests
 
             authManager.Logout("melanie");
 
-            Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.ValidateToken("melanie", tokenInfo!.Token));
+            Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.ValidateToken("melanie", tokenInfo.Token));
         }
     }
 }

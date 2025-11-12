@@ -17,13 +17,13 @@ namespace MRP.Server.Models
 
         public DateTime CreatedAt { get; private set; }
 
-        public User(string username, string password) 
+        public User(string username, string password)
         {
             ValidateUsername(username);
             ValidatePassword(password, username);
 
             Username = username;
-            Password = HashPassword(password);
+            Password = HashPassword(username, password);
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -57,31 +57,17 @@ namespace MRP.Server.Models
                 throw new ArgumentException("Password must be at least 8 characters long and contain at least one number and one special character", nameof(password));
             }
 
-            if(password.ToLower().Contains(username.ToLower()))
+            if (password.ToLower().Contains(username.ToLower()))
             {
                 throw new ArgumentException("Password is not allowed to contain the username");
             }
         }
 
-        public static string HashPassword(string password)
+        public static string HashPassword(string username, string password)
         {
-                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(password);
-                byte[] hash = System.Security.Cryptography.SHA256.HashData(bytes);
-                return Convert.ToBase64String(hash);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is not User otherUser)
-            {
-                return false;
-            }
-
-            return Username.Equals(otherUser.Username, StringComparison.OrdinalIgnoreCase);
-        }
-        public override int GetHashCode()
-        {
-            return Username.ToLowerInvariant().GetHashCode();
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(username + password);
+            byte[] hash = System.Security.Cryptography.SHA256.HashData(bytes);
+            return Convert.ToBase64String(hash);
         }
     }
 }
