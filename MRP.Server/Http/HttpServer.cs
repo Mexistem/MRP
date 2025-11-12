@@ -67,7 +67,12 @@ namespace MRP.Server.Http
                     await HandleLoginAsync(context);
                 }
 
-                else if(method == "GET" && path.StartsWith("/api/users/") && path.EndsWith("/profile"))
+                else if(method == "POST" && path == "/api/users/register")
+                {
+                    await HandleRegisterAsync(context);
+                }
+
+                else if (method == "GET" && path.StartsWith("/api/users/") && path.EndsWith("/profile"))
                 {
                     string username = path.Split('/', StringSplitOptions.RemoveEmptyEntries)[2];
                     await HandleProfileAsync(context, username);
@@ -121,6 +126,36 @@ namespace MRP.Server.Http
             {
                 await WriteJsonAsync(response, HttpStatusCode.Unauthorized, new ErrorResponse { Error = "Invalid credentials" });
             }
+        }
+
+        private async Task HandleRegisterAsync(HttpListenerContext context)
+        {
+            var request = context.Request;
+            var response = context.Response;
+
+            if (request.ContentType?.Contains("application/json") != true)
+            {
+                await WriteJsonAsync(response, HttpStatusCode.BadRequest, new ErrorResponse { Error = "Invalid Content-Type", Details = "Use application/json" });
+            }
+
+            var register = await ReadJsonAsync<LoginRequest>(request);
+            if(register is null || string.IsNullOrWhiteSpace(register.Username) || string.IsNullOrWhiteSpace(register.Password))
+            {
+                await WriteJsonAsync(response, HttpStatusCode.BadRequest, new ErrorResponse { Error = "Invalid body", Details = "username and password required" });
+                return;
+            }
+
+            try
+            {
+                _users.Register(register.Username, register.Password);
+                await WriteJsonAsync(response, HttpStatusCode.Created, new { message = "User created successfully" });
+            }
+
+            catch(InvalidOperationException exception)
+            {
+                await WriteJsonAsync(response, HttpStatusCode.Conflict, new ErrorResponse { Error = exception.Message });
+            }
+
         }
 
         private async Task HandleProfileAsync(HttpListenerContext context, string usernameInPath)
