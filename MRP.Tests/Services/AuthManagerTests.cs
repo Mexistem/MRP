@@ -112,5 +112,23 @@ namespace MRP.Tests
 
             Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.ValidateToken("melanie", tokenInfo.Token));
         }
+
+        [TestMethod]
+        public void ExpiredToken_ShouldBeRemovedFromStore_WhenValidated()
+        {
+            authManager.Login("melanie", "!123Password");
+
+            var tokenInfo = authManager.GetTokenInfo("melanie");
+
+            Assert.IsNotNull(tokenInfo);
+
+            tokenInfo!.ExpiresAt = DateTime.UtcNow.AddMinutes(-1);
+
+            Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.ValidateToken("melanie", tokenInfo.Token));
+
+            var afterValidation = authManager.GetTokenInfo("melanie");
+            Assert.IsNull(afterValidation, "Expired token should be removed from the store after validation");
+
+        }
     }
 }

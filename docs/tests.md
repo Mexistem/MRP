@@ -31,7 +31,8 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Token Ablaufzeit ist korrekt gesetzt (+30 Minuten)
 - [x] Token wird angenommen oder abgelehnt wenn abgelaufen
 - [x] Token kann nur vom richtigen Benutzer verwendet werden
-- [ ] Abgemeldeter Benutzer verliert Gültigkeit seines Tokens
+- [x] Abgemeldeter Benutzer verliert Gültigkeit seines Tokens
+- [ ] Abgelaufene Tokens werden nach Überprüfen aus der Liste gelöscht
 
 ### 3. Benutzerstatistik
 - [ ] Neuer Benutzer hat 0 Bewertungen
