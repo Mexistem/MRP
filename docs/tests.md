@@ -44,21 +44,29 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 ## B. Medienverwaltung (CRUD)
 
 ### 1. Medien erstellen
-- [ ] Neues Medium kann erstellt werden (Titel, Jahr, Genre)
+- [ ] Neues Medium kann erstellt werden (Titel, Beschreibung, Jahr, Genre(s), Altersfreigabe)
 - [ ] Titel darf nicht leer sein
+- [ ] Beschreibung darf nicht leer sein
+- [ ] Genre-Liste darf nicht leer sein
+- [ ] Altersfreigabe muss gültig sein (>= 0)
+- [ ] Release-Jahr muss gültig sein
 - [ ] Medientyp muss gültig sein (Film, Serie, Spiel)
 - [ ] Erstellungsdatum wird richtig gespeichert
-- [ ] Es darf keine zwei Medien mit gleichem Namen (caseinsensitive) geben
+- [ ] LastModifiedAt wird korrekt gesetzt (= CreatedAt)
+- [ ] Es darf keine zwei Medien mit gleichem Titel geben (case-insensitive)
 
 ### 2. Medien bearbeiten
 - [ ] Nur Ersteller darf Medium bearbeiten
 - [ ] Änderungen werden korrekt übernommen
-- [ ] Ungültige Änderungen werden abgelehnt
+- [ ] Änderungen werden abgelehnt, wenn Titel/Beschreibung/Genre-Liste leer sind
+- [ ] Ungültige Änderungen (z. B. ungültiger Typ, Alter < 0, ungültiges Jahr) werden abgelehnt
 - [ ] Änderungszeitpunkt wird richtig gesetzt
+- [ ] Titel darf durch ein Update nicht zu einem Duplikat eines anderen Mediums werden
 
 ### 3. Medien löschen
 - [ ] Nur Ersteller darf Medium löschen
 - [ ] Beim Löschen werden zugehörige Bewertungen entfernt
+- [ ] Beim Löschen werden Favoriten entfernt
 - [ ] Statistiken werden nach dem Löschen aktualisiert
 
 ---
