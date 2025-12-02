@@ -9,13 +9,14 @@ using MRP.Server.Models;
 
 namespace MRP.Server.Services
 {
-    public class AuthManager
+    public sealed class AuthManager : IAuthManager
     {
         private readonly UserManager _userManager;
-        private readonly Dictionary<string, TokenInfo> _tokens = new(StringComparer.OrdinalIgnoreCase);
-        public AuthManager(UserManager userManager)
+        private readonly ITokenRepository _tokenRepository;
+        public AuthManager(UserManager userManager, ITokenRepository tokenRepository)
         {
             _userManager = userManager;
+            _tokenRepository = tokenRepository;
         }
 
         public string Login(string username, string password)
@@ -41,17 +42,14 @@ namespace MRP.Server.Services
                 ExpiresAt = DateTime.UtcNow.AddMinutes(30)
             };
 
-            _tokens[user.Username] = tokenInfo;
+            _tokenRepository.SetToken(user.Username, tokenInfo);
 
             return tokenString;
         }
 
         public void Logout(string username)
         {
-            if(_tokens.ContainsKey(username))
-            {
-                _tokens.Remove(username);
-            }
+            _tokenRepository.RemoveToken(username);
         }
 
         private static string GenerateToken()
@@ -67,37 +65,28 @@ namespace MRP.Server.Services
                 throw new UnauthorizedAccessException("Missing bearer token");
             }
 
-            if (!_tokens.TryGetValue(username, out var info))
+            var info = _tokenRepository.GetByUsername(username);
+
+            if (info is null || info.Token != token)
             {
                 throw new UnauthorizedAccessException("Invalid or expired token");
             }
 
-            if(info.Token != token)
-            {
-                throw new UnauthorizedAccessException("Invalid or expired token");
-            }
             if (info.ExpiresAt <= DateTime.UtcNow)
             {
-                _tokens.Remove(username);
+                _tokenRepository.RemoveToken(username);
                 throw new UnauthorizedAccessException("Invalid or expired token");
             }
         }
 
         public TokenInfo? GetTokenInfo(string username)
         {
-            _tokens.TryGetValue(username, out TokenInfo? info);
-            return info;
+            return _tokenRepository.GetByUsername(username);
         }
 
         public string? GetUsernameByToken(string token)
         {
-            foreach (var keyvaluepair in _tokens)
-            {
-                if (keyvaluepair.Value.Token == token)
-                    return keyvaluepair.Key;
-            }
-
-            return null;
+            return _tokenRepository.GetUsernameByToken(token);
         }
 
         public bool IsAdmin(string username)

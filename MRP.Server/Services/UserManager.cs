@@ -1,37 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using MRP.Server.Models;
+﻿using MRP.Server.Models;
+using MRP.Server.Validation;
 
 namespace MRP.Server.Services
 {
-    public class UserManager
+    public sealed class UserManager : IUserManager
     {
-        private readonly List<User> _users = [];
-        public UserManager() { }
+        private readonly IUserRepository _userRepository;
+        public UserManager(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
 
         private void AddUser(User user)
         {
-            if (_users.Any(u => u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase)))
+            if (_userRepository.Exists(user.Username))
             {
                 throw new InvalidOperationException("A user with this username already exists");
             }
 
-            _users.Add(user);
+            _userRepository.Add(user);
         }
 
         public void Register(string username, string password)
         {
+            UserValidator.ValidateUsername(username);
+            PasswordValidator.ValidatePassword(password, username);
+
             var user = new User(username, password);
+
             AddUser(user);
         }
 
         public User? GetUser(string username)
         {
-            return _users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+            return _userRepository.Get(username);
         }
 
         public void RegisterAdmin(string username, string password)

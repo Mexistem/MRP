@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MRP.Server.Models;
-using MRP.Server.Services;
+﻿using MRP.Server.Services;
+using MRP.Server.Storage.InMemory;
 
 namespace MRP.Tests
 {
@@ -19,9 +12,11 @@ namespace MRP.Tests
         [TestInitialize]
         public void Setup()
         {
-            userManager = new UserManager();
+            var userRepository = new InMemoryUserRepository();
+            userManager = new UserManager(userRepository);
             userManager.Register("melanie", "!123Password");
-            authManager = new AuthManager(userManager);
+            var tokenRepository = new InMemoryTokenRepository();
+            authManager = new AuthManager(userManager, tokenRepository);
         }
 
         [TestMethod]
