@@ -62,6 +62,11 @@
                 throw new ArgumentException("Description length must be between 10 and 2000 characters.", nameof(description));
             }
 
+            if (ageRestriction < 0 || ageRestriction > 21)
+            {
+                throw new ArgumentException("Age restriction must be between 0 and 21.", nameof(ageRestriction));
+            }
+
             for (int i = 0; i < genres.Count; i++)
             {
                 genres[i] = genres[i].Trim();
