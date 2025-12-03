@@ -1,4 +1,6 @@
-﻿namespace MRP.Server.Models
+﻿
+using MRP.Server.Validation;
+namespace MRP.Server.Models
 {
     public sealed class RatingEntry
     {

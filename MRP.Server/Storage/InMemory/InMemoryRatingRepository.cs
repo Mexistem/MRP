@@ -1,4 +1,7 @@
-﻿namespace MRP.Server.Storage.InMemory
+﻿using MRP.Server.Models;
+
+
+namespace MRP.Server.Storage.InMemory
 {
     public class InMemoryRatingRepository : IRatingRepository
     {

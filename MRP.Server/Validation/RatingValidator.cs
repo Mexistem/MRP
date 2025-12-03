@@ -8,8 +8,7 @@
             int value,
             string? comment)
         {
-            // Logik kommt später per TDD
-            // Hier nur Grundstruktur / Signatur.
+         
         }
     }
 }
