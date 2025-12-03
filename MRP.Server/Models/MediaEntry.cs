@@ -31,7 +31,9 @@
                 throw new ArgumentException("Title is not allowed to be empty or contain only whitespace", nameof(title));
             }
 
-            Title = title;
+            string trimmedTitle = title.Trim();
+
+            Title = trimmedTitle;
             Description = description;
             ReleaseYear = releaseYear;
             Genres = genres;
