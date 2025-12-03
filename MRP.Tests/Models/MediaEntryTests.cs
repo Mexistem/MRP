@@ -322,20 +322,33 @@ namespace MRP.Tests
                 new MediaEntry(
                     title,
                     description,
-                    releaseYear,
-                    tooShort,
+                   releaseYear,
+                    tooLong,
                     ageRestriction,
                     type,
                     creator);
             });
+        }
+
+        [TestMethod]
+        public void CreatingMediaEntry_WithDuplicateGenres_ShouldThrow()
+        {
+            string title = "Inception";
+            string description = "A mind-bending thriller";
+            int releaseYear = 2010;
+            int ageRestriction = 12;
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
+
+            var duplicateGenres = new List<string> { "Sci-Fi", "  sci-fi  " };
 
             Assert.ThrowsException<ArgumentException>(() =>
             {
                 new MediaEntry(
                     title,
                     description,
-                   releaseYear,
-                    tooLong,
+                    releaseYear,
+                    duplicateGenres,
                     ageRestriction,
                     type,
                     creator);
