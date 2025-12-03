@@ -1671,6 +1671,164 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Rating",
+			"item": [
+				{
+					"name": "Valid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Rating value is stored\", () => {\r",
+									"    pm.expect(json.Value).to.equal(4);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Comment is trimmed\", () => {\r",
+									"    pm.expect(json.Comment).to.equal(\"nice movie\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"CreatedAt is set\", () => {\r",
+									"    pm.expect(json.CreatedAt).to.exist;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"Inception\",\r\n  \"username\": \"melanie\",\r\n  \"value\": 4,\r\n  \"comment\": \"  nice movie  \"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Value",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 400 Bad Request (invalid rating value)\", () => {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Error message exists\", () => {\r",
+									"    pm.expect(json.error).to.exist;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"Inception\",\r\n  \"username\": \"melanie\",\r\n  \"value\": 0,\r\n  \"comment\": null\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Valid Without Comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created (no comment)\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Comment is null or empty\", () => {\r",
+									"    pm.expect(json.Comment === null || json.Comment === \"\").to.be.true;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"CreatedAt is set (no comment case)\", () => {\r",
+									"    pm.expect(json.CreatedAt).to.exist;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"Inception\",\r\n  \"username\": \"melanie\",\r\n  \"value\": 5\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

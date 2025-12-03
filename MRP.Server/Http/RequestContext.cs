@@ -6,6 +6,7 @@ namespace MRP.Server.Http
     {
         public HttpListenerRequest Request { get; }
         public HttpListenerResponse Response { get; }
+        public Dictionary<string, string> Parameters { get; } = new();
 
         public RequestContext(HttpListenerContext context)
         {

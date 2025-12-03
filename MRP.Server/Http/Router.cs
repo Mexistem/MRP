@@ -34,18 +34,25 @@ namespace MRP.Server.Http
                 if (!template.Contains('{'))
                     continue;
 
-                if (IsMatch(template, path))
+                if (IsMatch(template, path, out var parameters))
                 {
+                    foreach (var p in parameters)
+                    {
+                        context.Parameters[p.Key] = p.Value;
+                    }
+
                     await kvp.Value(context);
                     return true;
-                }
+                } 
             }
 
             return false;
         }
 
-        private static bool IsMatch(string template, string path)
+        private static bool IsMatch(string template, string path, out Dictionary<string, string> parameters)
         {
+            parameters = new Dictionary<string, string>();
+
             var templateParts = template.Split('/', StringSplitOptions.RemoveEmptyEntries);
             var pathParts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
@@ -58,7 +65,11 @@ namespace MRP.Server.Http
                 var p = pathParts[i];
 
                 if (t.StartsWith("{") && t.EndsWith("}"))
+                {
+                    string key = t.Trim('{', '}');
+                    parameters[key] = p;
                     continue;
+                }
 
                 if (!string.Equals(t, p, StringComparison.Ordinal))
                     return false;

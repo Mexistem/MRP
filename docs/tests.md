@@ -85,11 +85,11 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 ## C. Bewertungen
 
 ### 1. Bewertung abgeben
-- [ ] Benutzer kann Bewertung mit Wert 1–5 abgeben
-- [ ] Bewertungen außerhalb 1–5 werden abgelehnt
-- [ ] Bewertung hat einen CreatedAt-Zeitstempel
-- [ ] Kommentar ist optional
-- [ ] Kommentar wird vor der Speicherung getrimmt
+- [x] Benutzer kann Bewertung mit Wert 1–5 abgeben
+- [x] Bewertungen außerhalb 1–5 werden abgelehnt
+- [x] Bewertung hat einen CreatedAt-Zeitstempel
+- [x] Kommentar ist optional
+- [x] Kommentar wird vor der Speicherung getrimmt
 
 ### 2. Bewertung bearbeiten oder löschen
 - [ ] Nur Ersteller kann Bewertung ändern

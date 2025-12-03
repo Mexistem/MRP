@@ -30,6 +30,14 @@ namespace MRP.Server.Http
 
             _router.Map("GET", "/api/media", mediaHandler.GetAll);
             _router.Map("POST", "/api/media", mediaHandler.Create);
+
+            var ratingRepository = new InMemoryRatingRepository();
+            var ratingManager = new RatingManager(ratingRepository);
+            var ratingHandler = new RatingHandler(ratingManager, mediaRepository);
+
+            _router.Map("POST", "/api/ratings", ratingHandler.Create);
+            _router.Map("GET", "/api/ratings/{title}", ratingHandler.GetAllForMedia);
+
         }
 
         public async Task StartAsync(CancellationToken cancellationToken = default)

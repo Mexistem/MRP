@@ -46,4 +46,19 @@ namespace MRP.Server.Http
         [JsonPropertyName("createdBy")]
         public string CreatedBy { get; set; } = string.Empty;
     }
+
+    public sealed class RatingCreateRequest
+    {
+        [JsonPropertyName("mediaTitle")]
+        public string? MediaTitle { get; set; }
+
+        [JsonPropertyName("username")]
+        public string? Username { get; set; }
+
+        [JsonPropertyName("value")]
+        public int Value { get; set; }
+
+        [JsonPropertyName("comment")]
+        public string? Comment { get; set; }
+    }
 }
