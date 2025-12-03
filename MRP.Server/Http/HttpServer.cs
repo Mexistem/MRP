@@ -1,5 +1,6 @@
 ﻿using MRP.Server.Http.Handlers;
 using MRP.Server.Services;
+using MRP.Server.Storage.InMemory;
 using System;
 using System.Net;
 using System.Text.Json;
@@ -22,6 +23,13 @@ namespace MRP.Server.Http
             _router.Map("POST", "/api/users/login", authHandler.Login);
             _router.Map("POST", "/api/users/logout", authHandler.Logout);
             _router.Map("GET", "/api/users/{username}/profile", userHandler.Profile);
+
+            var mediaRepository = new InMemoryMediaRepository();
+            var mediaManager = new MediaManager(mediaRepository);
+            var mediaHandler = new MediaHandler(mediaRepository, mediaManager);
+
+            _router.Map("GET", "/api/media", mediaHandler.GetAll);
+            _router.Map("POST", "/api/media", mediaHandler.Create);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken = default)

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MRP.Server.Models;
 
-namespace MRP.Server.Storage.Interfaces
+namespace MRP.Server.Storage
 {
-    internal class IMediaRepository
+    public interface IMediaRepository
     {
+        IEnumerable<MediaEntry> GetAll();
+        void Add(MediaEntry entry);
     }
 }

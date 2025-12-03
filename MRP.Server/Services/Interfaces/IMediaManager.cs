@@ -4,9 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MRP.Server.Services.Interfaces
+using System;
+using System.Collections.Generic;
+using MRP.Server.Models;
+
+namespace MRP.Server.Services
 {
-    internal class IMediaManager
+    public interface IMediaManager
     {
+        MediaEntry CreateMedia(
+            string title,
+            string description,
+            int releaseYear,
+            List<string> genres,
+            int ageRestriction,
+            MediaType type,
+            string createdBy);
     }
 }
