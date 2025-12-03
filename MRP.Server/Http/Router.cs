@@ -24,16 +24,47 @@ namespace MRP.Server.Http
                 return true;
             }
 
-            if (method == "GET" && path.StartsWith("/api/users/") && path.EndsWith("/profile"))
+            foreach (var kvp in _routes)
             {
-                if (_routes.TryGetValue((method, "/api/users/profile"), out handler))
+                var key = kvp.Key;
+                if (!string.Equals(key.Item1, method, StringComparison.Ordinal))
+                    continue;
+
+                string template = key.Item2;
+                if (!template.Contains('{'))
+                    continue;
+
+                if (IsMatch(template, path))
                 {
-                    await handler(context);
+                    await kvp.Value(context);
                     return true;
                 }
             }
 
             return false;
+        }
+
+        private static bool IsMatch(string template, string path)
+        {
+            var templateParts = template.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var pathParts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+            if (templateParts.Length != pathParts.Length)
+                return false;
+
+            for (int i = 0; i < templateParts.Length; i++)
+            {
+                var t = templateParts[i];
+                var p = pathParts[i];
+
+                if (t.StartsWith("{") && t.EndsWith("}"))
+                    continue;
+
+                if (!string.Equals(t, p, StringComparison.Ordinal))
+                    return false;
+            }
+
+            return true;
         }
     }
 }

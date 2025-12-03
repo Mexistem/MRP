@@ -1,7 +1,9 @@
 ﻿using MRP.Server.Http.Handlers;
 using MRP.Server.Services;
+using System;
 using System.Net;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MRP.Server.Http
@@ -13,28 +15,30 @@ namespace MRP.Server.Http
 
         public HttpServer(IUserManager userManager, IAuthManager authManager)
         {
+            var authHandler = new AuthHandler(authManager);
             var userHandler = new UserHandler(userManager, authManager);
 
             _router.Map("POST", "/api/users/register", userHandler.Register);
-            _router.Map("POST", "/api/users/login", userHandler.Login);
-            _router.Map("GET", "/api/users/profile", userHandler.Profile);
-            _router.Map("POST", "/api/users/logout", userHandler.Logout);
+            _router.Map("POST", "/api/users/login", authHandler.Login);
+            _router.Map("POST", "/api/users/logout", authHandler.Logout);
+            _router.Map("GET", "/api/users/{username}/profile", userHandler.Profile);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken = default)
         {
             _listener.Prefixes.Add("http://localhost:8080/");
             _listener.Start();
+            Console.WriteLine("Http Server started on http://localhost:8080");
 
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                var context = new RequestContext(await _listener.GetContextAsync());
+                var httpContext = await _listener.GetContextAsync();
+                var context = new RequestContext(httpContext);
 
                 if (!await _router.TryHandleAsync(context))
                 {
-                    context.Response.StatusCode = 404;
-                    await JsonSerializer.SerializeAsync(context.Response.OutputStream,
-                        new { error = "Not Found" });
+                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "Not Found" });
                 }
 
                 context.Response.OutputStream.Close();

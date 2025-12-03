@@ -44,7 +44,7 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 ## B. Medienverwaltung (CRUD)
 
 ### 1. Medien erstellen
-- [ ] Neues Medium kann erstellt werden (Titel, Beschreibung, Jahr, Genre(s), Altersfreigabe)
+- [x] Neues Medium kann erstellt werden (Titel, Beschreibung, Jahr, Genre(s), Altersfreigabe)
 - [ ] Titel darf nicht leer sein
 - [ ] Beschreibung darf nicht leer sein
 - [ ] Genre-Liste darf nicht leer sein

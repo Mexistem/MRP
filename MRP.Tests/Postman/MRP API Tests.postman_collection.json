@@ -357,15 +357,25 @@
 							"script": {
 								"exec": [
 									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
-									"const ct = pm.response.headers.get(\"Content-Type\") || \"\";\r",
-									"pm.test(\"Content-Type is JSON\", () => pm.expect(ct.toLowerCase()).to.include(\"application/json\"));\r",
 									"\r",
-									"const raw = pm.response.text().trim();\r",
-									"pm.test(\"Token returned (non-empty string)\", () => pm.expect(raw.length).to.be.greaterThan(2));\r",
+									"pm.test(\"Content-Type is JSON\", () => {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\").toLowerCase())\r",
+									"        .to.include(\"application/json\");\r",
+									"});\r",
 									"\r",
-									"const token = raw.replace(/^\"+|\"+$/g, \"\");\r",
-									"pm.environment.set(\"token\", token);\r",
-									"pm.test(\"Token saved to environment\", () => pm.expect(pm.environment.get(\"token\")).to.be.a(\"string\"));"
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Token returned (non-empty string)\", () => {\r",
+									"    pm.expect(json.token).to.be.a(\"string\");\r",
+									"    pm.expect(json.token.length).to.be.greaterThan(5);\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"token\", json.token);\r",
+									"\r",
+									"pm.test(\"Token saved to environment\", () => {\r",
+									"    pm.expect(pm.environment.get(\"token\")).to.be.a(\"string\");\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -680,13 +690,13 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/users/otheruser/profile",
+							"raw": "{{baseUrl}}/users/nottheuser/profile",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"users",
-								"otheruser",
+								"nottheuser",
 								"profile"
 							]
 						}
@@ -702,7 +712,7 @@
 								"exec": [
 									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
 									"const json = pm.response.json();\r",
-									"pm.test(\"Logout success message\", () => pm.expect(json.message).to.include(\"Logout\"));"
+									"pm.test(\"Logout success message\", () => pm.expect(json.message).to.include(\"logout\"));"
 								],
 								"type": "text/javascript",
 								"packages": {},

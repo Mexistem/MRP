@@ -4,8 +4,7 @@ namespace MRP.Server.Storage.InMemory
 {
     public sealed class InMemoryTokenRepository : ITokenRepository
     {
-        private readonly Dictionary<string, TokenInfo> _tokens =
-        new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, TokenInfo> _tokens = new(StringComparer.OrdinalIgnoreCase);
 
         public TokenInfo? GetByUsername(string username)
         {
