@@ -27,6 +27,7 @@
             string createdBy)
         {
             string trimmedTitle = title.Trim();
+            string trimmedDescription = description.Trim();
 
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -44,7 +45,7 @@
             }
 
             Title = trimmedTitle;
-            Description = description;
+            Description = trimmedDescription;
             ReleaseYear = releaseYear;
             Genres = genres;
             AgeRestriction = ageRestriction;
