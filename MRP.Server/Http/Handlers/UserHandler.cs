@@ -16,48 +16,176 @@ namespace MRP.Server.Http.Handlers
             _authManager = authManager;
         }
 
-        public async Task RegisterAsync(RequestContext context)
+        public async Task Register(RequestContext context)
         {
-            var registerRequest = await JsonSerializer.DeserializeAsync<RegisterRequest>(context.Request.InputStream);
+            context.Response.ContentType = "application/json";
 
-            if (registerRequest!.IsAdmin)
-                _userManager.RegisterAdmin(registerRequest.Username, registerRequest.Password);
-            else
-                _userManager.Register(registerRequest.Username, registerRequest.Password);
+            if (string.IsNullOrWhiteSpace(context.Request.ContentType) || !context.Request.ContentType.Contains("application/json", StringComparison.OrdinalIgnoreCase))
+            {
+                context.Response.StatusCode = 400;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "invalid body" });
+                return;
+            }
 
-            context.Response.StatusCode = (int)HttpStatusCode.OK;
-            await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { success = true });
+            RegisterRequest? request;
+            try
+            {
+                request = await JsonSerializer.DeserializeAsync<RegisterRequest>(context.Request.InputStream);
+            }
+            catch
+            {
+                context.Response.StatusCode = 400;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "invalid body" });
+                return;
+            }
+
+            if (request == null || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                context.Response.StatusCode = 400;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "invalid body" });
+                return;
+            }
+
+            try
+            {
+                if (request.IsAdmin)
+                {
+                    _userManager.RegisterAdmin(request.Username, request.Password);
+                    context.Response.StatusCode = 201;
+                    await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { message = "Admin created successfully" });
+                }
+                else
+                {
+                    _userManager.Register(request.Username, request.Password);
+                    context.Response.StatusCode = 201;
+                    await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { message = "User created successfully" });
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                context.Response.StatusCode = 409;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "User already exists" });
+            }
+            catch (ArgumentException ex)
+            {
+                context.Response.StatusCode = 400;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = ex.Message });
+            }
         }
 
-        public async Task ProfileAsync(RequestContext context)
+        public async Task Login(RequestContext context)
         {
-            string? tokenHeader = context.Request.Headers["Authorization"];
+            context.Response.ContentType = "application/json";
 
-            if (tokenHeader is null)
+            LoginRequest? request;
+            try
             {
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "Missing token" });
+                request = await JsonSerializer.DeserializeAsync<LoginRequest>(context.Request.InputStream);
+            }
+            catch
+            {
+                context.Response.StatusCode = 400;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "invalid body" });
                 return;
             }
 
-            string? usernameFromToken = _authManager.GetUsernameByToken(tokenHeader);
-
-            if (usernameFromToken is null)
+            try
             {
-                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "Unauthorized" });
+                string token = _authManager.Login(request!.Username, request.Password);
+                context.Response.StatusCode = 200;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { token });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                context.Response.StatusCode = 401;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "invalid credentials" });
+            }
+            catch (InvalidOperationException)
+            {
+                context.Response.StatusCode = 401;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "unknown user" });
+            }
+        }
+
+        public async Task Profile(RequestContext context)
+        {
+            context.Response.ContentType = "application/json";
+
+            var path = context.Request.Url!.AbsolutePath;
+            var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length != 4 || segments[0] != "api" || segments[1] != "users" || segments[3] != "profile")
+            {
+                context.Response.StatusCode = 404;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "not found" });
                 return;
             }
 
-            var user = _userManager.GetUser(usernameFromToken);
+            string usernameFromPath = segments[2];
 
-            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            string? header = context.Request.Headers["Authorization"];
+            if (string.IsNullOrWhiteSpace(header))
+            {
+                context.Response.StatusCode = 401;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "missing bearer token" });
+                return;
+            }
+
+            string token = header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ? header.Substring("Bearer ".Length).Trim() : header.Trim();
+
+            try
+            {
+                _authManager.ValidateToken(usernameFromPath, token);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                context.Response.StatusCode = 401;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "invalid or expired token" });
+                return;
+            }
+
+            var user = _userManager.GetUser(usernameFromPath);
+            if (user is null)
+            {
+                context.Response.StatusCode = 404;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "not found" });
+                return;
+            }
+
+            context.Response.StatusCode = 200;
             await JsonSerializer.SerializeAsync(context.Response.OutputStream, new
             {
-                username = user!.Username,
+                username = user.Username,
                 role = user.Role,
                 createdAt = user.CreatedAt
             });
+        }
+
+        public async Task Logout(RequestContext context)
+        {
+            context.Response.ContentType = "application/json";
+
+            string? tokenHeader = context.Request.Headers["Authorization"];
+            if (string.IsNullOrWhiteSpace(tokenHeader))
+            {
+                context.Response.StatusCode = 401;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "missing token" });
+                return;
+            }
+
+            string token = tokenHeader.StartsWith("Bearer ") ? tokenHeader.Substring(7).Trim() : tokenHeader.Trim();
+            string? username = _authManager.GetUsernameByToken(token);
+
+            if (username == null)
+            {
+                context.Response.StatusCode = 401;
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "invalid or expired token" });
+                return;
+            }
+
+            _authManager.Logout(username);
+
+            context.Response.StatusCode = 200;
+            await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { message = "logout successful" });
         }
     }
 }

@@ -20,5 +20,4 @@ dotnet run --project ".\MRP.Server\MRP.Server.csproj"
 # In den Postman-Testordner wechseln
 cd "C:\Users\Melanie\Documents\FH\SWEN1\MRP\MRP.Tests\Postman"
 
-newman run "MRP API Tests.postman_collection.json" ^
-  -e "MRP Project.postman_environment.json"
+newman run "MRP API Tests.postman_collection.json" -e "MRP Project.postman_environment.json"

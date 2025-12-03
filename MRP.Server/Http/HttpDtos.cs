@@ -1,5 +1,4 @@
-﻿
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace MRP.Server.Http
 {
@@ -14,8 +13,13 @@ namespace MRP.Server.Http
 
     public sealed class RegisterRequest
     {
+        [JsonPropertyName("username")]
         public string Username { get; set; } = string.Empty;
+
+        [JsonPropertyName("password")]
         public string Password { get; set; } = string.Empty;
+
+        [JsonPropertyName("isAdmin")]
         public bool IsAdmin { get; set; } = false;
     }
 }

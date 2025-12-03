@@ -26,7 +26,7 @@ namespace MRP.Server.Services
 
             if (user == null)
             {
-                throw new InvalidOperationException("User not found");
+                throw new InvalidOperationException("unknown user");
             }
 
             if(user.Password != User.HashPassword(username, password))
@@ -87,23 +87,6 @@ namespace MRP.Server.Services
         public string? GetUsernameByToken(string token)
         {
             return _tokenRepository.GetUsernameByToken(token);
-        }
-
-        public bool IsAdmin(string username)
-        {
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                return false;
-            }
-
-            var user = _userManager.GetUser(username);
-
-            if (user is null)
-            {
-                return false;
-            }
-
-            return user is Admin;
         }
     }
 }

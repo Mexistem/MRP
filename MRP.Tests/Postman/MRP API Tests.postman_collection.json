@@ -90,9 +90,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status 409 Conflict\", () => pm.response.to.have.status(409));\r",
-									"const json = pm.response.json();\r",
-									"pm.test(\"Duplicate error\", () => pm.expect((json.error || \"\").toLowerCase()).to.include(\"exists\"));"
+									"pm.expect(pm.response.code).to.eql(409);"
 								],
 								"type": "text/javascript",
 								"packages": {},

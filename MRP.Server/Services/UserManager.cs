@@ -38,8 +38,27 @@ namespace MRP.Server.Services
 
         public void RegisterAdmin(string username, string password)
         {
+            if (_userRepository.Exists(username))
+                throw new InvalidOperationException("Admin already exists");
+
             var admin = new Admin(username, password);
             AddUser(admin);
+        }
+
+        public IEnumerable<User> GetAllUsers()
+        {
+            return _userRepository.GetAll();
+        }
+
+        public void DeleteUser(string username)
+        {
+            _userRepository.Delete(username);
+        }
+
+        public bool IsAdmin(string username)
+        {
+            var user = _userRepository.Get(username);
+            return user != null && user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
