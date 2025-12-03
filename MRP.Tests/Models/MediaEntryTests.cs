@@ -431,6 +431,31 @@ namespace MRP.Tests
             });
         }
 
+        [TestMethod]
+        public void CreatingMediaEntry_WithInvalidMediaType_ShouldThrow()
+        {
+            string title = "Inception";
+            string description = "A mind-bending thriller";
+            int releaseYear = 2010;
+            var genres = new List<string> { "Sci-Fi" };
+            int ageRestriction = 12;
+            string creator = "melanie";
+
+            MediaType invalidType = (MediaType)999;
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    description,
+                    releaseYear,
+                    genres,
+                    ageRestriction,
+                    invalidType,
+                    creator);
+            });
+        }
+
 
     }
 }

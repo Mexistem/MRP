@@ -61,7 +61,6 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Altersfreigabe darf einen realistischen Maximalwert nicht überschreiten (z. B. <= 21)
 - [x] Release-Jahr muss gültig sein (z. B. >= 1900)
 - [x] Release-Jahr darf nicht in zu ferner Zukunft liegen (z. B. <= aktuelles Jahr + 1)
-- [ ] Medientyp muss gültig sein
 - [ ] Ungültiger Medientyp wird abgelehnt
 - [ ] Erstellungsdatum CreatedAt wird beim Erstellen korrekt gesetzt
 - [ ] LastModifiedAt wird beim Erstellen auf denselben Wert wie CreatedAt gesetzt
