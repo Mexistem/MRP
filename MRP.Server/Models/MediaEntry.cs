@@ -67,6 +67,11 @@
                 genres[i] = genres[i].Trim();
             }
 
+            if (genres.Count > 5)
+            {
+                throw new ArgumentException("A maximum of 5 genres is allowed.", nameof(genres));
+            }
+
             Title = trimmedTitle;
             Description = trimmedDescription;
             ReleaseYear = releaseYear;
