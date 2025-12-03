@@ -281,6 +281,31 @@ namespace MRP.Tests
                 entry.Genres);
         }
 
+        [TestMethod]
+        public void CreatingMediaEntry_WithTooManyGenres_ShouldThrow()
+        {
+            string title = "Inception";
+            string description = "A mind-bending thriller";
+            int releaseYear = 2010;
+            int ageRestriction = 12;
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
+
+            var tooManyGenres = new List<string> { "A", "B", "C", "D", "E", "F" };
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    description,
+                    releaseYear,
+                    tooManyGenres,
+                    ageRestriction,
+                    type,
+                    creator);
+            });
+        }
+
 
     }
 }
