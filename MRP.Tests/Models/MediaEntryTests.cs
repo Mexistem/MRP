@@ -306,6 +306,43 @@ namespace MRP.Tests
             });
         }
 
+        public void CreatingMediaEntry_WithGenreLengthOutOfRange_ShouldThrow()
+        {
+            string title = "Inception";
+            string description = "A mind-bending thriller";
+            int releaseYear = 2010;
+            int ageRestriction = 12;
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
+
+            var tooShort = new List<string> { "A" };
+            var tooLong = new List<string> { new string('x', 41) };
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    description,
+                    releaseYear,
+                    tooShort,
+                    ageRestriction,
+                    type,
+                    creator);
+            });
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    description,
+                   releaseYear,
+                    tooLong,
+                    ageRestriction,
+                    type,
+                    creator);
+            });
+        }
+
 
     }
 }
