@@ -39,6 +39,11 @@
                 throw new ArgumentException("Description is not allowed to be empty or contain only whitespace.", nameof(description));
             }
 
+            if (genres == null || genres.Count == 0)
+            {
+                throw new ArgumentException("Genre list must not be empty.", nameof(genres));
+            }
+
             if (trimmedTitle.Length > 150)
             {
                 throw new ArgumentException("Title length must be under 150 characters.", nameof(title));
