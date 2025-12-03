@@ -51,11 +51,12 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Beschreibung darf nicht leer sein oder nur aus Leerzeichen bestehen
 - [x] Beschreibung wird vor der Speicherung getrimmt
 - [x] Beschreibung-Länge muss zwischen 10 und 2000 Zeichen liegen
-- [ ] Genre-Liste darf nicht leer sein
-- [ ] Jedes Genre darf nicht leer sein oder nur aus Leerzeichen bestehen
-- [ ] Genre-Namen werden getrimmt
-- [ ] Anzahl der Genres ist begrenzt (z. B. maximal 5 Genres pro Medium)
-- [ ] Genre-Länge muss zwischen 2 und 40 Zeichen liegen
+- [x] Genre-Liste darf nicht leer sein
+- [x] Jedes Genre darf nicht leer sein oder nur aus Leerzeichen bestehen
+- [x] Genre-Namen werden getrimmt
+- [x] Anzahl der Genres ist begrenzt (maximal 5 Genres pro Medium)
+- [x] Genre-Länge muss unter 40 Zeichen liegen
+- [ ] Keine zwei gleichen Genres
 - [ ] Altersfreigabe muss gültig sein (>= 0)
 - [ ] Altersfreigabe darf einen realistischen Maximalwert nicht überschreiten (z. B. <= 21)
 - [ ] Release-Jahr muss gültig sein (z. B. >= 1900)

@@ -315,7 +315,6 @@ namespace MRP.Tests
             MediaType type = MediaType.Movie;
             string creator = "melanie";
 
-            var tooShort = new List<string> { "A" };
             var tooLong = new List<string> { new string('x', 41) };
 
             Assert.ThrowsException<ArgumentException>(() =>

@@ -72,6 +72,14 @@
                 throw new ArgumentException("A maximum of 5 genres is allowed.", nameof(genres));
             }
 
+            foreach (var g in genres)
+            {
+                if (g.Length > 40)
+                {
+                    throw new ArgumentException("Each genre must be under 40 characters long.", nameof(genres));
+                }
+            }
+
             Title = trimmedTitle;
             Description = trimmedDescription;
             ReleaseYear = releaseYear;
