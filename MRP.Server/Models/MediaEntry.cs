@@ -44,6 +44,12 @@
                 throw new ArgumentException("Title length must be under 150 characters.", nameof(title));
             }
 
+            if (trimmedDescription.Length < 10 || trimmedDescription.Length > 2000)
+            {
+                throw new ArgumentException("Description length must be between 10 and 2000 characters.", nameof(description));
+            }
+
+
             Title = trimmedTitle;
             Description = trimmedDescription;
             ReleaseYear = releaseYear;
