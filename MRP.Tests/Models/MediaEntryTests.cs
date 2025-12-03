@@ -218,6 +218,44 @@ namespace MRP.Tests
             });
         }
 
+        [TestMethod]
+        public void CreatingMediaEntry_WithInvalidGenreItems_ShouldThrow()
+        {
+            string title = "Inception";
+            string description = "A mind-bending thriller";
+            int releaseYear = 2010;
+            int ageRestriction = 12;
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
+
+            var genresContainingEmpty = new List<string> { "Sci-Fi", "   " };
+            var genresContainingNull = new List<string?> { "Action", null! };
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    description,
+                    releaseYear,
+                    genresContainingEmpty!,
+                    ageRestriction,
+                    type,
+                    creator);
+            });
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    description,
+                    releaseYear,
+                    genresContainingNull!,
+                    ageRestriction,
+                    type,
+                    creator);
+            });
+        }
+
 
     }
 }
