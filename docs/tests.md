@@ -61,9 +61,9 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Altersfreigabe darf einen realistischen Maximalwert nicht überschreiten (z. B. <= 21)
 - [x] Release-Jahr muss gültig sein (z. B. >= 1900)
 - [x] Release-Jahr darf nicht in zu ferner Zukunft liegen (z. B. <= aktuelles Jahr + 1)
-- [ ] Ungültiger Medientyp wird abgelehnt
-- [ ] Erstellungsdatum CreatedAt wird beim Erstellen korrekt gesetzt
-- [ ] LastModifiedAt wird beim Erstellen auf denselben Wert wie CreatedAt gesetzt
+- [x] Ungültiger Medientyp wird abgelehnt
+- [x] Erstellungsdatum CreatedAt wird beim Erstellen korrekt gesetzt
+- [x] LastModifiedAt wird beim Erstellen auf denselben Wert wie CreatedAt gesetzt
 - [ ] Es darf keine zwei Medien mit gleichem Titel geben (case-insensitive)
 - [ ] Titel-Vergleich für Duplikate ignoriert führende und folgende Leerzeichen
 - [ ] Duplikatversuch liefert eine aussagekräftige Fehlermeldung

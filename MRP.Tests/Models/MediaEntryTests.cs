@@ -1,4 +1,6 @@
 ﻿using MRP.Server.Models;
+using MRP.Server.Storage.InMemory;
+using MRP.Server.Services;
 
 namespace MRP.Tests
 {
@@ -502,6 +504,43 @@ namespace MRP.Tests
                 creator);
 
             Assert.AreEqual(entry.CreatedAt, entry.LastModifiedAt);
+        }
+
+        [TestMethod]
+        public void CreatingMediaEntry_WithDuplicateTitle_ShouldThrow()
+        {
+            var repo = new InMemoryMediaRepository();
+            var manager = new MediaManager(repo);
+
+            string title1 = "Inception";
+            string title2 = "  inception  "; 
+            string description = "A mind-bending thriller";
+            var genres = new List<string> { "Sci-Fi" };
+            int releaseYear = 2010;
+            int ageRestriction = 12;
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
+
+            manager.CreateMedia(
+                title1,
+                description,
+                releaseYear,
+                genres,
+                ageRestriction,
+                type,
+                creator);
+
+            Assert.ThrowsException<InvalidOperationException>(() =>
+            {
+                manager.CreateMedia(
+                    title2,
+                    description,
+                    releaseYear,
+                    genres,
+                    ageRestriction,
+                    type,
+                    creator);
+            });
         }
     }
 }
