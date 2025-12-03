@@ -193,5 +193,31 @@ namespace MRP.Tests
                     creator);
             });
         }
+
+        [TestMethod]
+        public void CreatingMediaEntry_WithEmptyGenreList_ShouldThrow()
+        {
+            string title = "Inception";
+            string description = "A mind-bending thriller";
+            int releaseYear = 2010;
+            var emptyGenres = new List<string>();
+            int ageRestriction = 12;
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    description,
+                    releaseYear,
+                    emptyGenres,
+                    ageRestriction,
+                    type,
+                    creator);
+            });
+        }
+
+
     }
 }
