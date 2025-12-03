@@ -16,6 +16,8 @@
         public int AgeRestriction { get; }
         public MediaType Type { get; }
         public string CreatedBy { get; }
+        public DateTime CreatedAt { get; }
+        public DateTime LastModifiedAt { get; }
 
         public MediaEntry(
             string title,
@@ -100,6 +102,11 @@
             if (releaseYear < 1900 || releaseYear > maxYear)
             {
                 throw new ArgumentException("Release year must be between 1900 and next year.", nameof(releaseYear));
+            }
+
+            if (!Enum.IsDefined(typeof(MediaType), type))
+            {
+                throw new ArgumentException("Invalid media type.", nameof(type));
             }
 
             Title = trimmedTitle;

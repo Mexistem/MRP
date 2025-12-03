@@ -456,6 +456,52 @@ namespace MRP.Tests
             });
         }
 
+        [TestMethod]
+        public void CreatingMediaEntry_ShouldSetCreatedAt()
+        {
+            string title = "Inception";
+            string description = "A mind-bending thriller";
+            var genres = new List<string> { "Sci-Fi" };
+            int releaseYear = 2010;
+            int ageRestriction = 12;
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
 
+            var before = DateTime.UtcNow;
+            var entry = new MediaEntry(
+                title,
+                description,
+                releaseYear,
+                genres,
+                ageRestriction,
+                type,
+                creator);
+            var after = DateTime.UtcNow;
+
+            Assert.IsTrue(entry.CreatedAt >= before && entry.CreatedAt <= after);
+        }
+
+        [TestMethod]
+        public void CreatingMediaEntry_ShouldSetLastModifiedAtEqualToCreatedAt()
+        {
+            string title = "Inception";
+            string description = "A mind-bending thriller";
+            var genres = new List<string> { "Sci-Fi" };
+            int releaseYear = 2010;
+            int ageRestriction = 12;
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
+
+            var entry = new MediaEntry(
+                title,
+                description,
+                releaseYear,
+                genres,
+                ageRestriction,
+                type,
+                creator);
+
+            Assert.AreEqual(entry.CreatedAt, entry.LastModifiedAt);
+        }
     }
 }
