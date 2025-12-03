@@ -156,5 +156,42 @@ namespace MRP.Tests
 
             Assert.AreEqual(expectedDescription, entry.Description);
         }
+
+        [TestMethod]
+        public void CreatingMediaEntry_WithDescriptionLengthOutOfRange_ShouldThrow()
+        {
+            string title = "Inception";
+            string tooShort = "short";
+            string tooLong = new string('a', 2001);
+            int releaseYear = 2010;
+            var genres = new List<string> { "Sci-Fi" };
+            int ageRestriction = 12;
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    tooShort,
+                    releaseYear,
+                    genres,
+                    ageRestriction,
+                    type,
+                    creator);
+            });
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    tooLong,
+                    releaseYear,
+                    genres,
+                    ageRestriction,
+                    type,
+                    creator);
+            });
+        }
     }
 }
