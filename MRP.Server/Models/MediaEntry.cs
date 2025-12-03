@@ -38,8 +38,6 @@
                 throw new ArgumentException("Title length must be between 3 and 150 characters.", nameof(title));
             }
 
-
-
             Title = trimmedTitle;
             Description = description;
             ReleaseYear = releaseYear;
