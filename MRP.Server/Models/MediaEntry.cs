@@ -33,9 +33,14 @@
                 throw new ArgumentException("Title is not allowed to be empty or contain only whitespace", nameof(title));
             }
 
-            if (trimmedTitle.Length < 3 || trimmedTitle.Length > 150)
+            if (string.IsNullOrWhiteSpace(description))
             {
-                throw new ArgumentException("Title length must be between 3 and 150 characters.", nameof(title));
+                throw new ArgumentException("Description is not allowed to be empty or contain only whitespace.", nameof(description));
+            }
+
+            if (trimmedTitle.Length > 150)
+            {
+                throw new ArgumentException("Title length must be under 150 characters.", nameof(title));
             }
 
             Title = trimmedTitle;

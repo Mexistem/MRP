@@ -45,12 +45,12 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 
 ### 1. Medien erstellen
 - [x] Neues Medium kann erstellt werden (Titel, Beschreibung, Jahr, Genre(s), Altersfreigabe)
-- [ ] Titel darf nicht leer sein oder nur aus Leerzeichen bestehen
-- [ ] Titel wird vor der Speicherung getrimmt (Whitespace am Anfang/Ende entfernt)
-- [ ] Titel-Länge muss zwischen unter 150 Zeichen liegen
-- [ ] Beschreibung darf nicht leer sein oder nur aus Leerzeichen bestehen
-- [ ] Beschreibung wird vor der Speicherung getrimmt
-- [ ] Beschreibung-Länge muss zwischen 10 und 2000 Zeichen liegen
+- [x] Titel darf nicht leer sein oder nur aus Leerzeichen bestehen
+- [x] Titel wird vor der Speicherung getrimmt (Whitespace am Anfang/Ende entfernt)
+- [x] Titel-Länge muss unter 150 Zeichen liegen
+- [x] Beschreibung darf nicht leer sein oder nur aus Leerzeichen bestehen
+- [x] Beschreibung wird vor der Speicherung getrimmt
+- [x] Beschreibung-Länge muss zwischen 10 und 2000 Zeichen liegen
 - [ ] Genre-Liste darf nicht leer sein
 - [ ] Jedes Genre darf nicht leer sein oder nur aus Leerzeichen bestehen
 - [ ] Genre-Namen werden getrimmt
