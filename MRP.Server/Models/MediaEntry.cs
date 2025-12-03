@@ -116,6 +116,10 @@
             AgeRestriction = ageRestriction;
             Type = type;
             CreatedBy = createdBy;
+
+            var now = DateTime.UtcNow;
+            CreatedAt = now;
+            LastModifiedAt = now;
         }
     }
 }
