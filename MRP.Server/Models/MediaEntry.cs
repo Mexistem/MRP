@@ -80,6 +80,16 @@
                 }
             }
 
+            var normalized = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var g in genres)
+            {
+                if (!normalized.Add(g))
+                {
+                    throw new ArgumentException("Duplicate genres are not allowed (case-insensitive).", nameof(genres));
+                }
+            }
+
             Title = trimmedTitle;
             Description = trimmedDescription;
             ReleaseYear = releaseYear;
