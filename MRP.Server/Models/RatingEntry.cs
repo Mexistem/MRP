@@ -25,7 +25,7 @@ namespace MRP.Server.Models
             MediaTitle = mediaTitle;
             Username = username;
             Value = value;
-            Comment = comment;
+            Comment = comment?.Trim();
             CreatedAt = DateTime.UtcNow;
         }
     }
