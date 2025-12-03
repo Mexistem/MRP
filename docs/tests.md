@@ -56,7 +56,7 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Genre-Namen werden getrimmt
 - [x] Anzahl der Genres ist begrenzt (maximal 5 Genres pro Medium)
 - [x] Genre-Länge muss unter 40 Zeichen liegen
-- [ ] Keine zwei gleichen Genres
+- [x] Keine zwei gleichen Genres
 - [ ] Altersfreigabe muss gültig sein (>= 0)
 - [ ] Altersfreigabe darf einen realistischen Maximalwert nicht überschreiten (z. B. <= 21)
 - [ ] Release-Jahr muss gültig sein (z. B. >= 1900)

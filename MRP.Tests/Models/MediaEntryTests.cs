@@ -355,6 +355,43 @@ namespace MRP.Tests
             });
         }
 
+        [TestMethod]
+        public void CreatingMediaEntry_WithInvalidAgeRestriction_ShouldThrow()
+        {
+            string title = "Inception";
+            string description = "A mind-bending thriller";
+            int releaseYear = 2010;
+            var genres = new List<string> { "Sci-Fi" };
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
+
+            int belowZero = -1;
+            int aboveMax = 22;
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    description,
+                    releaseYear,
+                    genres,
+                    belowZero,
+                    type,
+                    creator);
+            });
+
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                new MediaEntry(
+                    title,
+                    description,
+                    releaseYear,
+                    genres,
+                    aboveMax,
+                    type,
+                    creator);
+            });
+        }
 
     }
 }
