@@ -256,6 +256,31 @@ namespace MRP.Tests
             });
         }
 
+        [TestMethod]
+        public void CreatingMediaEntry_ShouldTrimGenres()
+        {
+            string title = "Inception";
+            string description = "A mind-bending thriller";
+            int releaseYear = 2010;
+            int ageRestriction = 12;
+            MediaType type = MediaType.Movie;
+            string creator = "melanie";
+
+            var genresRaw = new List<string> { "  Sci-Fi  ", "  Action" };
+            var entry = new MediaEntry(
+                title,
+                description,
+                releaseYear,
+                genresRaw,
+                ageRestriction,
+                type,
+                creator);
+
+            CollectionAssert.AreEqual(
+                new List<string> { "Sci-Fi", "Action" },
+                entry.Genres);
+        }
+
 
     }
 }
