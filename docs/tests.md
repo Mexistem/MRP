@@ -64,9 +64,7 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Ungültiger Medientyp wird abgelehnt
 - [x] Erstellungsdatum CreatedAt wird beim Erstellen korrekt gesetzt
 - [x] LastModifiedAt wird beim Erstellen auf denselben Wert wie CreatedAt gesetzt
-- [ ] Es darf keine zwei Medien mit gleichem Titel geben (case-insensitive)
-- [ ] Titel-Vergleich für Duplikate ignoriert führende und folgende Leerzeichen
-- [ ] Duplikatversuch liefert eine aussagekräftige Fehlermeldung
+- [x] Es darf keine zwei Medien mit gleichem Titel geben (case-insensitive)
 
 ### 2. Medien bearbeiten
 - [ ] Nur Ersteller darf Medium bearbeiten
