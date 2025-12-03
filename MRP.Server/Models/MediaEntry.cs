@@ -44,6 +44,14 @@
                 throw new ArgumentException("Genre list must not be empty.", nameof(genres));
             }
 
+            foreach (var g in genres)
+            {
+                if (string.IsNullOrWhiteSpace(g))
+                {
+                    throw new ArgumentException("Genres must not contain null, empty, or whitespace-only values.", nameof(genres));
+                }
+            }
+
             if (trimmedTitle.Length > 150)
             {
                 throw new ArgumentException("Title length must be under 150 characters.", nameof(title));
