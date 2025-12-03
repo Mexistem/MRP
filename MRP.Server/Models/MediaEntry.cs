@@ -95,6 +95,13 @@
                 }
             }
 
+            int maxYear = DateTime.Now.Year + 1;
+
+            if (releaseYear < 1900 || releaseYear > maxYear)
+            {
+                throw new ArgumentException("Release year must be between 1900 and next year.", nameof(releaseYear));
+            }
+
             Title = trimmedTitle;
             Description = trimmedDescription;
             ReleaseYear = releaseYear;

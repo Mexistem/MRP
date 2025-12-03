@@ -57,10 +57,10 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Anzahl der Genres ist begrenzt (maximal 5 Genres pro Medium)
 - [x] Genre-Länge muss unter 40 Zeichen liegen
 - [x] Keine zwei gleichen Genres
-- [ ] Altersfreigabe muss gültig sein (>= 0)
-- [ ] Altersfreigabe darf einen realistischen Maximalwert nicht überschreiten (z. B. <= 21)
-- [ ] Release-Jahr muss gültig sein (z. B. >= 1900)
-- [ ] Release-Jahr darf nicht in zu ferner Zukunft liegen (z. B. <= aktuelles Jahr + 1)
+- [x] Altersfreigabe muss gültig sein (>= 0)
+- [x] Altersfreigabe darf einen realistischen Maximalwert nicht überschreiten (z. B. <= 21)
+- [x] Release-Jahr muss gültig sein (z. B. >= 1900)
+- [x] Release-Jahr darf nicht in zu ferner Zukunft liegen (z. B. <= aktuelles Jahr + 1)
 - [ ] Medientyp muss gültig sein
 - [ ] Ungültiger Medientyp wird abgelehnt
 - [ ] Erstellungsdatum CreatedAt wird beim Erstellen korrekt gesetzt
