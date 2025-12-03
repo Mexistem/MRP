@@ -26,12 +26,14 @@
             MediaType type,
             string createdBy)
         {
+            string trimmedTitle = title.Trim();
+
             if (string.IsNullOrWhiteSpace(title))
             {
                 throw new ArgumentException("Title is not allowed to be empty or contain only whitespace", nameof(title));
             }
 
-            string trimmedTitle = title.Trim();
+            
 
             Title = trimmedTitle;
             Description = description;
