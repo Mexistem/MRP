@@ -45,15 +45,28 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 
 ### 1. Medien erstellen
 - [x] Neues Medium kann erstellt werden (Titel, Beschreibung, Jahr, Genre(s), Altersfreigabe)
-- [ ] Titel darf nicht leer sein
-- [ ] Beschreibung darf nicht leer sein
+- [ ] Titel darf nicht leer sein oder nur aus Leerzeichen bestehen
+- [ ] Titel wird vor der Speicherung getrimmt (Whitespace am Anfang/Ende entfernt)
+- [ ] Titel-Länge muss zwischen 3 und 150 Zeichen liegen
+- [ ] Beschreibung darf nicht leer sein oder nur aus Leerzeichen bestehen
+- [ ] Beschreibung wird vor der Speicherung getrimmt
+- [ ] Beschreibung-Länge muss zwischen 10 und 2000 Zeichen liegen
 - [ ] Genre-Liste darf nicht leer sein
+- [ ] Jedes Genre darf nicht leer sein oder nur aus Leerzeichen bestehen
+- [ ] Genre-Namen werden getrimmt
+- [ ] Anzahl der Genres ist begrenzt (z. B. maximal 5 Genres pro Medium)
+- [ ] Genre-Länge muss zwischen 2 und 40 Zeichen liegen
 - [ ] Altersfreigabe muss gültig sein (>= 0)
-- [ ] Release-Jahr muss gültig sein
-- [ ] Medientyp muss gültig sein (Film, Serie, Spiel)
-- [ ] Erstellungsdatum wird richtig gespeichert
-- [ ] LastModifiedAt wird korrekt gesetzt (= CreatedAt)
+- [ ] Altersfreigabe darf einen realistischen Maximalwert nicht überschreiten (z. B. <= 21)
+- [ ] Release-Jahr muss gültig sein (z. B. >= 1900)
+- [ ] Release-Jahr darf nicht in zu ferner Zukunft liegen (z. B. <= aktuelles Jahr + 1)
+- [ ] Medientyp muss gültig sein
+- [ ] Ungültiger Medientyp wird abgelehnt
+- [ ] Erstellungsdatum CreatedAt wird beim Erstellen korrekt gesetzt
+- [ ] LastModifiedAt wird beim Erstellen auf denselben Wert wie CreatedAt gesetzt
 - [ ] Es darf keine zwei Medien mit gleichem Titel geben (case-insensitive)
+- [ ] Titel-Vergleich für Duplikate ignoriert führende und folgende Leerzeichen
+- [ ] Duplikatversuch liefert eine aussagekräftige Fehlermeldung
 
 ### 2. Medien bearbeiten
 - [ ] Nur Ersteller darf Medium bearbeiten

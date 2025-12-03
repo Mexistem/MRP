@@ -26,6 +26,11 @@
             MediaType type,
             string createdBy)
         {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                throw new ArgumentException("Title is not allowed to be empty or contain only whitespace", nameof(title));
+            }
+
             Title = title;
             Description = description;
             ReleaseYear = releaseYear;

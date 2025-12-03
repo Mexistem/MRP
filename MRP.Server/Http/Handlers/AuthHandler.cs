@@ -15,22 +15,6 @@ namespace MRP.Server.Http.Handlers
             _authManager = authManager;
         }
 
-        private static string? ExtractBearerToken(string? headerValue)
-        {
-            if (string.IsNullOrWhiteSpace(headerValue))
-            { 
-                return null;
-            }
-
-            const string bearer = "Bearer ";
-            if (headerValue.StartsWith(bearer, StringComparison.OrdinalIgnoreCase))
-            {
-                return headerValue.Substring(bearer.Length).Trim();
-            }
-
-            return headerValue.Trim();
-        }
-
         public async Task Login(RequestContext context)
         {
             context.Response.ContentType = "application/json";
