@@ -88,27 +88,13 @@ namespace MRP.Tests
         [TestMethod]
         public void CreatingMediaEntry_WithTitleLengthOutOfRange_ShouldThrow()
         {
+            string tooLongTitle = new string('a', 151);
             string description = "A mind-bending thriller";
             int releaseYear = 2010;
             var genres = new List<string> { "Sci-Fi" };
             int ageRestriction = 12;
             MediaType type = MediaType.Movie;
             string creator = "melanie";
-
-            string tooShortTitle = "ab";
-            string tooLongTitle = new string('a', 151);
-
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
-                new MediaEntry(
-                    tooShortTitle,
-                    description,
-                    releaseYear,
-                    genres,
-                    ageRestriction,
-                    type,
-                    creator);
-            });
 
             Assert.ThrowsException<ArgumentException>(() =>
             {

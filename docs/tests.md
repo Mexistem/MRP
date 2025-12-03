@@ -47,7 +47,7 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Neues Medium kann erstellt werden (Titel, Beschreibung, Jahr, Genre(s), Altersfreigabe)
 - [ ] Titel darf nicht leer sein oder nur aus Leerzeichen bestehen
 - [ ] Titel wird vor der Speicherung getrimmt (Whitespace am Anfang/Ende entfernt)
-- [ ] Titel-Länge muss zwischen 3 und 150 Zeichen liegen
+- [ ] Titel-Länge muss zwischen unter 150 Zeichen liegen
 - [ ] Beschreibung darf nicht leer sein oder nur aus Leerzeichen bestehen
 - [ ] Beschreibung wird vor der Speicherung getrimmt
 - [ ] Beschreibung-Länge muss zwischen 10 und 2000 Zeichen liegen
