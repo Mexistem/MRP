@@ -3,7 +3,7 @@ using MRP.Server.Models;
 using MRP.Server.Services;
 using MRP.Tests.Helpers;
 
-namespace MRP.Tests.Models
+namespace MRP.Tests.Services
 {
     [TestClass]
     public sealed class UserTests

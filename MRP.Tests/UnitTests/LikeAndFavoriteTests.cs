@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MRP.Server.Tests
+namespace MRP.Tests.Services
 {
     [TestClass]
     public sealed class LikeAndFavoriteTests

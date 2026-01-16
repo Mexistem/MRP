@@ -4670,6 +4670,121 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Leaderboard",
+			"item": [
+				{
+					"name": "Leaderboard Is Displayed Correctly",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is JSON array\", function () {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.be.an(\"array\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Leaderboard entries have required fields\", function () {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body.length).to.be.greaterThan(0);\r",
+									"\r",
+									"    const entry = body[0];\r",
+									"    pm.expect(entry).to.have.property(\"username\");\r",
+									"    pm.expect(entry).to.have.property(\"totalRatings\");\r",
+									"    pm.expect(entry).to.have.property(\"totalLikesReceived\");\r",
+									"    pm.expect(entry).to.have.property(\"averageScore\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Fields have correct types\", function () {\r",
+									"    const entry = pm.response.json()[0];\r",
+									"\r",
+									"    pm.expect(entry.username).to.be.a(\"string\");\r",
+									"    pm.expect(entry.totalRatings).to.be.a(\"number\");\r",
+									"    pm.expect(entry.totalLikesReceived).to.be.a(\"number\");\r",
+									"    pm.expect(entry.averageScore).to.be.a(\"number\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Sorted by totalRatings desc\", function () {\r",
+									"    const body = pm.response.json();\r",
+									"\r",
+									"    for (let i = 0; i < body.length - 1; i++) {\r",
+									"        pm.expect(body[i].totalRatings)\r",
+									"            .to.be.at.least(body[i + 1].totalRatings);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Sorted by likes when totalRatings equal\", function () {\r",
+									"    const body = pm.response.json();\r",
+									"\r",
+									"    for (let i = 0; i < body.length - 1; i++) {\r",
+									"        if (body[i].totalRatings === body[i + 1].totalRatings) {\r",
+									"            pm.expect(body[i].totalLikesReceived)\r",
+									"                .to.be.at.least(body[i + 1].totalLikesReceived);\r",
+									"        }\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Sorted by averageScore when ratings and likes equal\", function () {\r",
+									"    const body = pm.response.json();\r",
+									"\r",
+									"    for (let i = 0; i < body.length - 1; i++) {\r",
+									"        if (\r",
+									"            body[i].totalRatings === body[i + 1].totalRatings &&\r",
+									"            body[i].totalLikesReceived === body[i + 1].totalLikesReceived\r",
+									"        ) {\r",
+									"            pm.expect(body[i].averageScore)\r",
+									"                .to.be.at.least(body[i + 1].averageScore);\r",
+									"        }\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/leaderboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"leaderboard"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

@@ -2,7 +2,7 @@
 using MRP.Server.Services;
 using MRP.Tests.Helpers;
 
-namespace MRP.Tests
+namespace MRP.Tests.Services
 {
     [TestClass]
     public class RatingEntryTests

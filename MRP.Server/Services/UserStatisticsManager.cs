@@ -1,25 +1,30 @@
 ﻿using MRP.Server.Models;
 using MRP.Server.Services.Interfaces;
+using MRP.Server.Storage.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MRP.Server.Services
 {
-    public sealed class UserStatisticsHandler : IUserStatisticsHandler
+    public sealed class UserStatisticsManager : IUserStatisticsManager
     {
         private readonly IRatingManager _ratingManager;
         private readonly IMediaManager _mediaManager;
         private readonly IFavoriteManager _favoriteManager;
+        private readonly ILikeManager _likeManager;
 
-        public UserStatisticsHandler(
+        public UserStatisticsManager(
             IRatingManager ratingManager,
             IMediaManager mediaManager,
-            IFavoriteManager favoriteManager)
+            IFavoriteManager favoriteManager,
+            ILikeManager likeManager)
         {
             _ratingManager = ratingManager;
             _mediaManager = mediaManager;
             _favoriteManager = favoriteManager;
+            _likeManager = likeManager;
+
         }
 
         public UserStatistics ComputePublic(string username)
@@ -29,6 +34,7 @@ namespace MRP.Server.Services
             return new UserStatistics
             {
                 TotalRatings = core.TotalRatings,
+                TotalLikesReceived = core.TotalLikesReceived,
                 AverageScore = core.AverageScore,
                 FavoriteGenre = core.FavoriteGenre,
                 RatedMediaCount = core.RatedMediaCount,
@@ -52,6 +58,7 @@ namespace MRP.Server.Services
             return new UserStatistics
             {
                 TotalRatings = core.TotalRatings,
+                TotalLikesReceived = core.TotalLikesReceived,
                 AverageScore = core.AverageScore,
                 FavoriteGenre = core.FavoriteGenre,
                 RatedMediaCount = core.RatedMediaCount,
@@ -64,17 +71,14 @@ namespace MRP.Server.Services
 
         private Core ComputeCore(string username)
         {
-            var allRatings = _ratingManager.GetAllRatings()
+            var ratings = _ratingManager.GetAllRatings()
                 .Where(r => r.Username == username)
-                .ToList();
-
-            var ratings = allRatings
-                .Where(r => _mediaManager.GetByTitle(r.MediaTitle) is not null)
                 .ToList();
 
             if (ratings.Count == 0)
             {
                 return new Core(
+                    0,
                     0,
                     0,
                     null,
@@ -84,6 +88,9 @@ namespace MRP.Server.Services
                     null
                 );
             }
+
+            int totalLikesReceived = ratings.Sum(r =>
+                _likeManager.GetLikeCount(r.MediaTitle, r.Username));
 
             double avg = ratings.Average(r => r.Value);
             int highest = ratings.Max(r => r.Value);
@@ -110,6 +117,7 @@ namespace MRP.Server.Services
 
             return new Core(
                 ratings.Count,
+                totalLikesReceived,
                 avg,
                 favoriteGenre,
                 ratedMediaCount,
@@ -121,6 +129,7 @@ namespace MRP.Server.Services
 
         private readonly record struct Core(
             int TotalRatings,
+            int TotalLikesReceived,
             double AverageScore,
             string? FavoriteGenre,
             int RatedMediaCount,

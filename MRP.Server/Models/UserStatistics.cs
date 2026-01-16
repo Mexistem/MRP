@@ -8,6 +8,9 @@ namespace MRP.Server.Models
         [JsonPropertyName("totalRatings")]
         public int TotalRatings { get; init; }
 
+        [JsonPropertyName("totalLikesReceived")]
+        public int TotalLikesReceived { get; init; }
+
         [JsonPropertyName("averageScore")]
         public double AverageScore { get; init; }
 

@@ -1,12 +1,13 @@
 ﻿using MRP.Server.Http.Handlers;
 using MRP.Server.Services;
+using MRP.Server.Services.Interfaces;
+using MRP.Server.Storage.Db;
 using MRP.Server.Storage.InMemory;
 using System;
 using System.Net;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using MRP.Server.Storage.Db;
 
 namespace MRP.Server.Http
 {
@@ -17,16 +18,17 @@ namespace MRP.Server.Http
 
         public HttpServer(IUserManager userManager, IAuthManager authManager, 
                           IMediaManager mediaManager, IRatingManager ratingManager, 
-                          ILikeManager likeManager, IFavoriteManager favoriteManager)
+                          ILikeManager likeManager, IFavoriteManager favoriteManager, ILeaderboardManager leaderboardManager)
         {
             var authHandler = new AuthHandler(authManager);
             var adminHandler = new AdminHandler(userManager, authManager);
-            var statisticsHandler = new UserStatisticsHandler(ratingManager, mediaManager, favoriteManager);
+            var statisticsHandler = new UserStatisticsManager(ratingManager, mediaManager, favoriteManager, likeManager);
             var userHandler = new UserHandler(userManager, authManager, statisticsHandler);
             var mediaHandler = new MediaHandler(mediaManager, authManager);
             var ratingHandler = new RatingHandler(ratingManager, authManager);
             var likeHandler = new LikeHandler(likeManager, authManager);
             var favoriteHandler = new FavoriteHandler(favoriteManager, authManager);
+            var leaderboardHandler = new LeaderboardHandler(leaderboardManager, authManager);
 
             _router.Map("POST", "/api/users/register", userHandler.Register);
             _router.Map("POST", "/api/users/login", authHandler.Login);
@@ -54,6 +56,8 @@ namespace MRP.Server.Http
             _router.Map("POST", "/api/media/{title}/favorite", favoriteHandler.Add);
             _router.Map("DELETE", "/api/media/{title}/favorite", favoriteHandler.Remove);
             _router.Map("GET", "/api/users/{username}/favorites", favoriteHandler.ListForUser);
+
+            _router.Map("GET", "/api/leaderboard", leaderboardHandler.Get);
 
         }
 

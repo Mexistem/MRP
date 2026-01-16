@@ -23,9 +23,10 @@ var mediaManager = new MediaManager(mediaRepository, userManager);
 var authManager = new AuthManager(userManager, tokenRepository);
 var likeManager = new LikeManager(likeRepository);
 var favoriteManager = new FavoriteManager(favoriteRepository);
+var leaderboardManager = new LeaderboardManager(userManager, ratingManager, likeManager, mediaManager);
 
 var server = new HttpServer(userManager, authManager, 
                             mediaManager, ratingManager,
-                            likeManager, favoriteManager);
+                            likeManager, favoriteManager, leaderboardManager);
 
 await server.StartAsync();

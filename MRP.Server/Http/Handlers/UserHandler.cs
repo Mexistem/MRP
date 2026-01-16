@@ -11,16 +11,16 @@ namespace MRP.Server.Http.Handlers
     {
         private readonly IUserManager _userManager;
         private readonly IAuthManager _authManager;
-        private readonly IUserStatisticsHandler _statisticsHandler;
+        private readonly IUserStatisticsManager _statisticsManager;
 
         public UserHandler(
             IUserManager userManager,
             IAuthManager authManager,
-            IUserStatisticsHandler statisticsHandler)
+            IUserStatisticsManager statisticsManager)
         {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _authManager = authManager ?? throw new ArgumentNullException(nameof(authManager));
-            _statisticsHandler = statisticsHandler ?? throw new ArgumentNullException(nameof(statisticsHandler));
+            _statisticsManager = statisticsManager ?? throw new ArgumentNullException(nameof(statisticsManager));
         }
 
         private static string? ExtractBearerToken(string? headerValue)
@@ -178,7 +178,7 @@ namespace MRP.Server.Http.Handlers
                 return;
             }
 
-            var stats = _statisticsHandler.ComputePublic(requestedUsername);
+            var stats = _statisticsManager.ComputePublic(requestedUsername);
 
             await WriteJson(context, HttpStatusCode.OK, new
             {
@@ -219,7 +219,7 @@ namespace MRP.Server.Http.Handlers
                 return;
             }
 
-            var stats = _statisticsHandler.ComputePrivate(usernameFromToken);
+            var stats = _statisticsManager.ComputePrivate(usernameFromToken);
 
             await WriteJson(context, HttpStatusCode.OK, new
             {
