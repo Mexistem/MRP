@@ -11,7 +11,7 @@ namespace MRP.Server.Services
 {
     public sealed class AuthManager : IAuthManager
     {
-        private readonly UserManager _userManager;
+        private readonly IUserManager _userManager;
         private readonly ITokenRepository _tokenRepository;
         public AuthManager(UserManager userManager, ITokenRepository tokenRepository)
         {
@@ -39,7 +39,8 @@ namespace MRP.Server.Services
             var tokenInfo = new TokenInfo
             {
                 Token = tokenString,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(30)
+                ExpiresAt = DateTime.UtcNow.AddMinutes(30),
+                Role = user.Role
             };
 
             _tokenRepository.SetToken(user.Username, tokenInfo);

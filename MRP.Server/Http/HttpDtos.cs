@@ -47,6 +47,27 @@ namespace MRP.Server.Http
         public string CreatedBy { get; set; } = string.Empty;
     }
 
+    public sealed class MediaUpdateRequest
+    {
+        [JsonPropertyName("newTitle")]
+        public string NewTitle { get; set; } = string.Empty;
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = string.Empty;
+
+        [JsonPropertyName("releaseYear")]
+        public int ReleaseYear { get; set; }
+
+        [JsonPropertyName("genres")]
+        public List<string> Genres { get; set; } = new List<string>();
+
+        [JsonPropertyName("ageRestriction")]
+        public int AgeRestriction { get; set; }
+
+        [JsonPropertyName("type")]
+        public MediaType Type { get; set; }
+    }
+
     public sealed class RatingCreateRequest
     {
         [JsonPropertyName("mediaTitle")]
@@ -55,6 +76,15 @@ namespace MRP.Server.Http
         [JsonPropertyName("username")]
         public string? Username { get; set; }
 
+        [JsonPropertyName("value")]
+        public int Value { get; set; }
+
+        [JsonPropertyName("comment")]
+        public string? Comment { get; set; }
+    }
+
+    public sealed class RatingUpdateRequest
+    {
         [JsonPropertyName("value")]
         public int Value { get; set; }
 

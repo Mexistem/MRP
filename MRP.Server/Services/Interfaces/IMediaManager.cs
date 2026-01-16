@@ -20,5 +20,18 @@ namespace MRP.Server.Services
             int ageRestriction,
             MediaType type,
             string createdBy);
+        MediaEntry UpdateMedia(
+            string title,
+            string? newTitle,
+            string description,
+            int releaseYear,
+            List<string> genres,
+            int ageRestriction,
+            MediaType type,
+            string requestedBy);
+        bool Exists(string title);
+        void DeleteMedia(string title, string requestedBy);
+        MediaEntry? GetByTitle(string title);
+        IEnumerable<MediaEntry> GetAll();
     }
 }

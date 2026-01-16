@@ -9,6 +9,8 @@ cd "C:\Users\Melanie\Documents\FH\SWEN1\MRP"
 1) Server starten
 ==========================
 
+docker exec -it mrp-postgres psql -U mrp -d mrp -c " TRUNCATE TABLE rating_likes, favorites, ratings, media_genres, media_entries, users CASCADE;"
+
 dotnet run --project ".\MRP.Server\MRP.Server.csproj"
 
 
@@ -20,4 +22,10 @@ dotnet run --project ".\MRP.Server\MRP.Server.csproj"
 # In den Postman-Testordner wechseln
 cd "C:\Users\Melanie\Documents\FH\SWEN1\MRP\MRP.Tests\Postman"
 
+
 newman run "MRP API Tests.postman_collection.json" -e "MRP Project.postman_environment.json"
+
+
+3) Datenbank initiieren
+docker compose down -v
+docker compose up -d --build

@@ -13,5 +13,10 @@ namespace MRP.Server.Services
 
         IEnumerable<RatingEntry> GetAllRatings();
         IEnumerable<RatingEntry> GetRatingsForMedia(string mediaTitle);
+        RatingEntry GetRatingForUser(string mediaTitle, string username);
+        RatingEntry UpdateRating(string mediaTitle, string username, int value, string? comment);
+        double GetAverageRatingForMedia(string mediaTitle);
+        void DeleteRating(string mediaTitle, string username);
+
     }
 }

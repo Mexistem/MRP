@@ -12,7 +12,23 @@ namespace MRP.Server.Http.Handlers
 
         public AuthHandler(IAuthManager authManager)
         {
-            _authManager = authManager;
+            _authManager = authManager ?? throw new ArgumentNullException(nameof(authManager));
+        }
+
+        private static string? ExtractBearerToken(string? headerValue)
+        {
+            if (string.IsNullOrWhiteSpace(headerValue))
+            {
+                return null;
+            }
+
+            const string bearer = "Bearer ";
+            if (headerValue.StartsWith(bearer, StringComparison.OrdinalIgnoreCase))
+            {
+                return headerValue.Substring(bearer.Length).Trim();
+            }
+
+            return headerValue.Trim();
         }
 
         public async Task Login(RequestContext context)
@@ -20,6 +36,7 @@ namespace MRP.Server.Http.Handlers
             context.Response.ContentType = "application/json";
 
             LoginRequest? request;
+
             try
             {
                 request = await JsonSerializer.DeserializeAsync<LoginRequest>(context.Request.InputStream);
@@ -61,16 +78,16 @@ namespace MRP.Server.Http.Handlers
             context.Response.ContentType = "application/json";
 
             string? header = context.Request.Headers["Authorization"];
-            if (string.IsNullOrWhiteSpace(header))
+            string? token = ExtractBearerToken(header);
+
+            if (string.IsNullOrWhiteSpace(token))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "missing token" });
+                await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { error = "missing bearer token" });
                 return;
             }
 
-            string token = header.StartsWith("Bearer ") ? header.Substring(7).Trim() : header.Trim();
             string? username = _authManager.GetUsernameByToken(token);
-
             if (username is null)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -83,6 +100,5 @@ namespace MRP.Server.Http.Handlers
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             await JsonSerializer.SerializeAsync(context.Response.OutputStream, new { message = "logout successful" });
         }
-
     }
 }

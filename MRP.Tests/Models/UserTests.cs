@@ -1,9 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using MRP.Server.Models;
 using MRP.Server.Services;
-using MRP.Server.Storage.InMemory;
-using System.Reflection.Metadata;
+using MRP.Tests.Helpers;
 
 namespace MRP.Tests.Models
 {
@@ -12,15 +10,14 @@ namespace MRP.Tests.Models
     {
         private static UserManager CreateUserManager()
         {
-            var repo = new InMemoryUserRepository();
-            return new UserManager(repo);
+            var t = TestSetup.Create();
+            return new UserManager(t.UserRepo, t.TokenRepo);
         }
 
         [TestMethod]
         public void User_CanBeCreated()
         {
             var user = new User("melanie", "!123Password");
-
             Assert.IsNotNull(user);
         }
 
@@ -59,7 +56,7 @@ namespace MRP.Tests.Models
             string invalidUsername = "Mel@n?e!";
             var manager = CreateUserManager();
 
-            Assert.ThrowsException<ArgumentException>( () => manager.Register(invalidUsername, "!123Password"));
+            Assert.ThrowsException<ArgumentException>(() => manager.Register(invalidUsername, "!123Password"));
         }
 
         [TestMethod]
@@ -69,7 +66,6 @@ namespace MRP.Tests.Models
             var manager = CreateUserManager();
 
             Assert.ThrowsException<ArgumentException>(() => manager.Register(tooLongUsername, "!123Password"));
-
         }
 
         [TestMethod]
@@ -79,7 +75,6 @@ namespace MRP.Tests.Models
             var manager = CreateUserManager();
 
             Assert.ThrowsException<ArgumentException>(() => manager.Register(tooShortUsername, "!123Password"));
-
         }
 
         [TestMethod]
@@ -93,7 +88,6 @@ namespace MRP.Tests.Models
         }
 
         [TestMethod]
-
         public void User_ShouldThrowException_WhenPasswordDoesNotMeetComplexityRequirements()
         {
             string username = "melanie";
@@ -106,11 +100,9 @@ namespace MRP.Tests.Models
             Assert.ThrowsException<ArgumentException>(() => manager.Register(username, tooShortPassword));
             Assert.ThrowsException<ArgumentException>(() => manager.Register(username, noNumberPassword));
             Assert.ThrowsException<ArgumentException>(() => manager.Register(username, noSpecialPassword));
-
         }
 
         [TestMethod]
-
         public void User_ShouldThrowException_WhenPasswordContainsUsername()
         {
             string username = "melanie";
@@ -122,13 +114,10 @@ namespace MRP.Tests.Models
         }
 
         [TestMethod]
-
         public void User_ShouldStorePasswordAsHashedValue()
         {
             string username = "melanie";
             string password = "!123Password";
-
-            var manager = CreateUserManager();
 
             var user = new User(username, password);
 
@@ -141,15 +130,11 @@ namespace MRP.Tests.Models
             string username = "melanie";
             string password = "!123Password";
 
-            var manager = CreateUserManager();
-
             var beforeCreation = DateTime.UtcNow;
-            var user = new User(username,password);
+            var user = new User(username, password);
             var afterCreation = DateTime.UtcNow;
 
             Assert.IsTrue(user.CreatedAt >= beforeCreation && user.CreatedAt <= afterCreation);
         }
-
-
     }
 }

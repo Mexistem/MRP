@@ -1,14 +1,19 @@
 ﻿using MRP.Server.Models;
 using MRP.Server.Validation;
+using MRP.Server.Storage.Interfaces;
 
 namespace MRP.Server.Services
 {
     public sealed class UserManager : IUserManager
     {
         private readonly IUserRepository _userRepository;
-        public UserManager(IUserRepository userRepository)
+        private readonly ITokenRepository _tokenRepository;
+
+        public UserManager(IUserRepository userRepository,
+                           ITokenRepository tokenRepository)
         {
-            _userRepository = userRepository;
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _tokenRepository = tokenRepository ?? throw new ArgumentNullException(nameof(tokenRepository));
         }
 
         private void AddUser(User user)
@@ -38,8 +43,8 @@ namespace MRP.Server.Services
 
         public void RegisterAdmin(string username, string password)
         {
-            if (_userRepository.Exists(username))
-                throw new InvalidOperationException("Admin already exists");
+            UserValidator.ValidateUsername(username);
+            PasswordValidator.ValidatePassword(password, username);
 
             var admin = new Admin(username, password);
             AddUser(admin);
@@ -52,6 +57,7 @@ namespace MRP.Server.Services
 
         public void DeleteUser(string username)
         {
+            _tokenRepository.RemoveToken(username);
             _userRepository.Delete(username);
         }
 
@@ -59,6 +65,45 @@ namespace MRP.Server.Services
         {
             var user = _userRepository.Get(username);
             return user != null && user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public bool Exists(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return false;
+            }
+
+            return _userRepository.Exists(username.Trim());
+        }
+
+        public void DeleteUserAsAdmin(string targetUsername, string requestedBy)
+        {
+            if (string.IsNullOrWhiteSpace(targetUsername))
+            {
+                throw new ArgumentException("targetUsername is required", nameof(targetUsername));
+            }
+
+            if (string.IsNullOrWhiteSpace(requestedBy))
+            {
+                throw new ArgumentException("requestedBy is required", nameof(requestedBy));
+            }
+
+            targetUsername = targetUsername.Trim();
+            requestedBy = requestedBy.Trim();
+
+            if (!IsAdmin(requestedBy))
+            {
+                throw new UnauthorizedAccessException("Only admins can delete users.");
+            }
+
+            if (!_userRepository.Exists(targetUsername))
+            {
+                throw new KeyNotFoundException("User not found.");
+            }
+
+            _tokenRepository.RemoveToken(targetUsername);
+            _userRepository.Delete(targetUsername);
         }
     }
 }

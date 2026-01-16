@@ -21,7 +21,8 @@ namespace MRP.Server.Models
         public DateTime CreatedAt { get; }
         public DateTime LastModifiedAt { get; }
 
-        public MediaEntry(
+        // 🔒 interner Ctor – nur innerhalb Models / Repositories
+        internal MediaEntry(
             string title,
             string description,
             int releaseYear,
@@ -30,33 +31,126 @@ namespace MRP.Server.Models
             MediaType type,
             string createdBy)
         {
-            string trimmedTitle = title.Trim();
-            string trimmedDescription = description.Trim();
-
-            MediaValidator.ValidateForCreate(
-                trimmedTitle,
-                trimmedDescription,
-                releaseYear,
-                genres,
-                ageRestriction,
-                type);
-
-            for (int i = 0; i < genres.Count; i++)
-            {
-                genres[i] = genres[i].Trim();
-            }
-
-            Title = trimmedTitle;
-            Description = trimmedDescription;
+            Title = title.Trim().ToLowerInvariant();
+            Description = description.Trim();
             ReleaseYear = releaseYear;
             Genres = genres;
             AgeRestriction = ageRestriction;
             Type = type;
             CreatedBy = createdBy;
 
-            var now = DateTime.UtcNow;
-            CreatedAt = now;
-            LastModifiedAt = now;
+            CreatedAt = DateTime.UtcNow;
+            LastModifiedAt = CreatedAt;
+        }
+        public static MediaEntry Create(
+            string title,
+            string description,
+            int releaseYear,
+            List<string> genres,
+            int ageRestriction,
+            MediaType type,
+            string createdBy)
+        {
+            MediaValidator.ValidateForCreate(
+                title,
+                description,
+                releaseYear,
+                genres,
+                ageRestriction,
+                type);
+
+            return new MediaEntry(
+                title,
+                description,
+                releaseYear,
+                genres,
+                ageRestriction,
+                type,
+                createdBy
+            );
+        }
+
+        public static MediaEntry FromDatabase(
+            string title,
+            string description,
+            int releaseYear,
+            List<string> genres,
+            int ageRestriction,
+            MediaType type,
+            string createdBy,
+            DateTime createdAt,
+            DateTime lastModifiedAt)
+        {
+            return new MediaEntry(
+                title,
+                description,
+                releaseYear,
+                genres,
+                ageRestriction,
+                type,
+                createdBy,
+                createdAt,
+                lastModifiedAt
+            );
+        }
+        private MediaEntry(
+            string title,
+            string description,
+            int releaseYear,
+            List<string> genres,
+            int ageRestriction,
+            MediaType type,
+            string createdBy,
+            DateTime createdAt,
+            DateTime lastModifiedAt)
+        {
+            Title = title;
+            Description = description;
+            ReleaseYear = releaseYear;
+            Genres = genres;
+            AgeRestriction = ageRestriction;
+            Type = type;
+            CreatedBy = createdBy;
+            CreatedAt = createdAt;
+            LastModifiedAt = lastModifiedAt;
+        }
+        public static MediaEntry UpdatedFromExisting(
+            MediaEntry existing,
+            string? newTitle,
+            string description,
+            int releaseYear,
+            List<string> genres,
+            int ageRestriction,
+            MediaType type)
+        {
+            if (existing is null)
+            {
+                throw new ArgumentNullException(nameof(existing));
+            }
+
+            var finalTitle = string.IsNullOrWhiteSpace(newTitle)
+                ? existing.Title
+                : newTitle;
+
+            MediaValidator.ValidateForCreate(
+                finalTitle,
+                description,
+                releaseYear,
+                genres,
+                ageRestriction,
+                type);
+
+            return new MediaEntry(
+                title: finalTitle.Trim().ToLowerInvariant(),
+                description: description.Trim(),
+                releaseYear: releaseYear,
+                genres: genres.Select(g => g?.Trim()!).ToList(),
+                ageRestriction: ageRestriction,
+                type: type,
+                createdBy: existing.CreatedBy,
+                createdAt: existing.CreatedAt,
+                lastModifiedAt: DateTime.UtcNow
+            );
         }
     }
 }

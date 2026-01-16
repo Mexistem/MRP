@@ -9,6 +9,8 @@ namespace MRP.Server.Services
         User? GetUser(string username);
         IEnumerable<User> GetAllUsers();
         void DeleteUser(string username);
+        void DeleteUserAsAdmin(string targetUsername, string requestedBy);
         bool IsAdmin(string username);
+        bool Exists(string username);
     }
 }

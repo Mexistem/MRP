@@ -1,12 +1,20 @@
-﻿using System.Collections.Generic;
-using MRP.Server.Models;
+﻿using MRP.Server.Models;
 
-namespace MRP.Server.Storage
+public interface IRatingRepository
 {
-    public interface IRatingRepository
-    {
-        IEnumerable<RatingEntry> GetAll();
-        IEnumerable<RatingEntry> GetByMediaTitle(string mediaTitle);
-        void Add(RatingEntry rating);
-    }
+    IEnumerable<RatingEntry> GetAll();
+
+    IEnumerable<RatingEntry> GetByMediaTitle(string mediaTitle);
+
+    RatingEntry? GetByMediaTitleAndUsername(string mediaTitle, string username);
+
+    void Add(RatingEntry rating);
+
+    void Update(RatingEntry rating);
+    void DeleteByMediaTitle(string mediaTitle);
+    void DeleteByUsername(string username);
+
+    bool DeleteRating(string mediaTitle, string username);
+
+    void RenameMediaTitle(string oldTitle, string newTitle);
 }

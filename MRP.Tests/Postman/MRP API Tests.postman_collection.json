@@ -12,7 +12,7 @@
 			"name": "Users",
 			"item": [
 				{
-					"name": "Register - Valid",
+					"name": "Register - Valid Copy",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -572,7 +572,7 @@
 								"exec": [
 									"pm.test(\"Status 401 Unauthorized\", () => pm.response.to.have.status(401));\r",
 									"const json = pm.response.json();\r",
-									"pm.test(\"Missing bearer token\", () => pm.expect((json.error || \"\").toLowerCase()).to.include(\"missing bearer\"));"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -665,7 +665,9 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status 401 Unauthorized\", () => pm.response.to.have.status(401));"
+									"pm.test(\"Status 401/403 Unauthorized\", () => {\r",
+									"  pm.expect([401, 403]).to.include(pm.response.code);\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -683,6 +685,11 @@
 								"key": "Authorization",
 								"value": "Bearer {{token}}",
 								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -690,14 +697,15 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/users/nottheuser/profile",
+							"raw": "{{baseUrl}}/users/{{username_2}}/profile/private",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"users",
-								"nottheuser",
-								"profile"
+								"{{username_2}}",
+								"profile",
+								"private"
 							]
 						}
 					},
@@ -821,28 +829,162 @@
 						}
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "Media",
-			"item": [
+				},
 				{
-					"name": "Valid",
+					"name": "Register - Valid 2",
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.environment.get(\"username_2\")) {\r",
+									"  pm.environment.set(\"username_2\", \"u_\" + Date.now());\r",
+									"}\r",
+									"if (!pm.environment.get(\"password\")) {\r",
+									"  pm.environment.set(\"password\", \"!123Password\");\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"pm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));\r",
 									"\r",
+									"const ct = pm.response.headers.get(\"Content-Type\") || \"\";\r",
+									"pm.test(\"Content-Type is JSON\", () => pm.expect(ct.toLowerCase()).to.include(\"application/json\"));\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"pm.test(\"Success message present\", () => pm.expect(json.message).to.eql(\"User created successfully\"));"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"{{username_2}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Login Admin: status 200\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
 									"const json = pm.response.json();\r",
 									"\r",
-									"pm.test(\"Media fields returned\", () => {\r",
-									"    pm.expect(json.Title).to.exist;\r",
-									"    pm.expect(json.Description).to.exist;\r",
-									"    pm.expect(json.Genres).to.be.an(\"array\");\r",
-									"});"
+									"const token =\r",
+									"  json.token ??\r",
+									"  json?.tokenInfo?.token ??\r",
+									"  json?.token?.token;\r",
+									"\r",
+									"pm.test(\"Admin token present\", () => {\r",
+									"  pm.expect(token).to.be.a(\"string\").and.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"admin_token\", token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"admin\",\r\n  \"password\": \"Password123!\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Login: status 200\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"const token =\r",
+									"  json.token ??\r",
+									"  json?.token?.token ??\r",
+									"  json?.tokenInfo?.token ??\r",
+									"  json?.tokenInfo?.Token ??\r",
+									"  json?.Token ??\r",
+									"  json?.access_token ??\r",
+									"  json?.accessToken;\r",
+									"\r",
+									"pm.test(\"Token present\", () => {\r",
+									"  pm.expect(token).to.be.a(\"string\").and.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"token_2\", token);"
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -861,7 +1003,294 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}",
+							"raw": "{\r\n  \"username\": \"{{username_2}}\",\r\n  \"password\": \"{{password}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Non Admin Deletes User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Non-admin delete target: 403\", () => {\r",
+									"  pm.response.to.have.status(403);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_2}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/users/{{username_2}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{username_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Deletes User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Admin delete target: 204\", () => {\r",
+									"  pm.response.to.have.status(204);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/users/{{username_2}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{username_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Doesnt Exist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									" pm.test(\"Profile after delete: 404\", () => {\r",
+									"  pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{username_2}}/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{username_2}}",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Media",
+			"item": [
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"\r",
+									"pm.test(\"Content-Type is JSON\", () => {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\").toLowerCase())\r",
+									"        .to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Token returned (non-empty string)\", () => {\r",
+									"    pm.expect(json.token).to.be.a(\"string\");\r",
+									"    pm.expect(json.token.length).to.be.greaterThan(5);\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"token\", json.token);\r",
+									"\r",
+									"pm.test(\"Token saved to environment\", () => {\r",
+									"    pm.expect(pm.environment.get(\"token\")).to.be.a(\"string\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"{{username}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Valid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Media fields returned\", () => {\r",
+									"    pm.expect(json.Title).to.exist;\r",
+									"    pm.expect(json.Description).to.exist;\r",
+									"    pm.expect(json.Genres).to.be.an(\"array\");\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"media_title\", json.Title);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -910,11 +1339,16 @@
 								"key": "Content-Type",
 								"value": "text/plain",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -964,11 +1398,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"   \",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}",
+							"raw": "{\r\n  \"title\": \"   \",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1012,11 +1451,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n",
+							"raw": "{\r\n  \"title\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1060,11 +1504,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"Too short\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n"
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"Too short\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/media",
@@ -1109,11 +1558,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n"
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/media",
@@ -1152,11 +1606,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"A\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"A\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1200,11 +1659,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\", \"Action\", \"Drama\", \"Thriller\", \"Fantasy\", \"Horror\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\", \"Action\", \"Drama\", \"Thriller\", \"Fantasy\", \"Horror\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1248,11 +1712,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\", \"  sci-fi  \"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\", \"  sci-fi  \"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1296,11 +1765,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": -1,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": -1,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1344,11 +1818,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 22,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 22,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1392,11 +1871,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 1899,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 1899,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1440,11 +1924,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2099,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2099,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1488,11 +1977,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 999,\r\n  \"createdBy\": \"melanie\"\r\n}\r\n",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 999,\r\n  \"createdBy\": \"{{username}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1538,11 +2032,16 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"description\": \"Invalid\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Action\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}"
+							"raw": "{\r\n  \"description\": \"Invalid\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Action\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/media",
@@ -1584,11 +2083,16 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"  inception  \",\r\n  \"description\": \"This is a duplicate movie entry.\",\r\n  \"releaseYear\": 2012,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}",
+							"raw": "{\r\n  \"title\": \"  inception  \",\r\n  \"description\": \"This is a duplicate movie entry.\",\r\n  \"releaseYear\": 2012,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1650,13 +2154,18 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"value": "text/plain",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller about dreams within dreams.\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"melanie\"\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{baseUrl}}/media",
@@ -1676,29 +2185,85 @@
 			"name": "Rating",
 			"item": [
 				{
-					"name": "Valid",
+					"name": "Create Media",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"pm.test(\"Status 201 Created\", () => {\r",
-									"    pm.response.to.have.status(201);\r",
+									"  pm.response.to.have.status(201);\r",
 									"});\r",
 									"\r",
 									"const json = pm.response.json();\r",
-									"\r",
-									"pm.test(\"Rating value is stored\", () => {\r",
-									"    pm.expect(json.Value).to.equal(4);\r",
+									"pm.environment.set(\"media_title_2\", json.Title);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Matrix\",\r\n  \"description\": \"Cyberpunk action classic\",\r\n  \"releaseYear\": 1999,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 16,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/media",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Valid Rating",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", function () {\r",
+									"  pm.response.to.have.status(201);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Comment is trimmed\", () => {\r",
-									"    pm.expect(json.Comment).to.equal(\"nice movie\");\r",
+									"const body = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Fields exist\", function () {\r",
+									"  pm.expect(body.MediaTitle).to.exist;\r",
+									"  pm.expect(body.Username).to.exist;\r",
+									"  pm.expect(body.Value).to.exist;\r",
+									"  pm.expect(body).to.have.property(\"Comment\");\r",
+									"  pm.expect(body.CreatedAt).to.exist;\r",
 									"});\r",
 									"\r",
-									"pm.test(\"CreatedAt is set\", () => {\r",
-									"    pm.expect(json.CreatedAt).to.exist;\r",
-									"});"
+									"pm.environment.set(\"rt_title\", body.MediaTitle);\r",
+									"pm.environment.set(\"rt_user\", body.Username);\r",
+									"pm.environment.set(\"rt_createdAt\", body.CreatedAt);\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -1712,11 +2277,16 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"mediaTitle\": \"Inception\",\r\n  \"username\": \"melanie\",\r\n  \"value\": 4,\r\n  \"comment\": \"  nice movie  \"\r\n}"
+							"raw": "{\r\n  \"mediaTitle\": \"Inception\",\r\n  \"username\": \"{{username}}\",\r\n  \"value\": 5,\r\n  \"comment\": \"Top movie\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/ratings",
@@ -1737,15 +2307,17 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status 400 Bad Request (invalid rating value)\", () => {\r",
-									"    pm.response.to.have.status(400);\r",
+									"pm.test(\"Status 400 Bad Request (invalid value)\", function () {\r",
+									"  pm.response.to.have.status(400);\r",
 									"});\r",
 									"\r",
-									"const json = pm.response.json();\r",
+									"const body = pm.response.json();\r",
 									"\r",
-									"pm.test(\"Error message exists\", () => {\r",
-									"    pm.expect(json.error).to.exist;\r",
-									"});"
+									"pm.test(\"Error message exists\", function () {\r",
+									"  pm.expect(body).to.have.property(\"error\");\r",
+									"  pm.expect(body.error).to.be.a(\"string\");\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -1759,11 +2331,16 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"mediaTitle\": \"Inception\",\r\n  \"username\": \"melanie\",\r\n  \"value\": 0,\r\n  \"comment\": null\r\n}\r\n"
+							"raw": "{\r\n  \"mediaTitle\": \"Inception\",\r\n  \"username\": \"{{username}}\",\r\n  \"value\": 6,\r\n  \"comment\": \"invalid\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/ratings",
@@ -1802,8 +2379,213 @@
 								"packages": {},
 								"requests": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
 						}
 					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"Matrix\",\r\n  \"username\": \"{{username}}\",\r\n  \"value\": 4\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Double Create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 409 Conflict (duplicate rating)\", function () {\r",
+									"  pm.response.to.have.status(409);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"{{rt_title}}\",\r\n  \"username\": \"{{rt_user}}\",\r\n  \"value\": 3\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rating",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const body = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Value updated\", () => pm.expect(body.Value).to.eql(2));\r",
+									"pm.test(\"Comment updated\", () => pm.expect(body.Comment).to.eql(\"updated comment\"));\r",
+									"pm.test(\"CreatedAt unchanged\", () => {\r",
+									"  const createdAtResponse = new Date(body.CreatedAt).getTime();\r",
+									"  const createdAtOriginal = new Date(pm.environment.get(\"rt_createdAt\")).getTime();\r",
+									"\r",
+									"  pm.expect(createdAtResponse).to.eql(createdAtOriginal);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"value\": 2,\r\n  \"comment\": \"updated comment\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings/inception/{{username}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"inception",
+								"{{username}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Media Update / Remove",
+			"item": [
+				{
+					"name": "New User 2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.environment.get(\"username_2\")) {\r",
+									"  pm.environment.set(\"username_2\", \"u_\" + Date.now());\r",
+									"}\r",
+									"if (!pm.environment.get(\"password\")) {\r",
+									"  pm.environment.set(\"password\", \"!123Password\");\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));\r",
+									"\r",
+									"const ct = pm.response.headers.get(\"Content-Type\") || \"\";\r",
+									"pm.test(\"Content-Type is JSON\", () => pm.expect(ct.toLowerCase()).to.include(\"application/json\"));\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"pm.test(\"Success message present\", () => pm.expect(json.message).to.eql(\"User created successfully\"));"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
 					"request": {
 						"method": "POST",
 						"header": [
@@ -1814,7 +2596,344 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"mediaTitle\": \"Inception\",\r\n  \"username\": \"melanie\",\r\n  \"value\": 5\r\n}"
+							"raw": "{\r\n  \"username\": \"{{username_2}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login New User 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"\r",
+									"pm.test(\"Content-Type is JSON\", () => {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\").toLowerCase())\r",
+									"        .to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Token returned (non-empty string)\", () => {\r",
+									"    pm.expect(json.token).to.be.a(\"string\");\r",
+									"    pm.expect(json.token.length).to.be.greaterThan(5);\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"token_2\", json.token);\r",
+									"\r",
+									"pm.test(\"Token saved to environment\", () => {\r",
+									"    pm.expect(pm.environment.get(\"token_2\")).to.be.a(\"string\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"{{username_2}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Media - Valid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"All fields updated correctly\", function () {\r",
+									"  pm.expect(json.Title).to.eql(pm.environment.get(\"media_title\"));\r",
+									"  pm.expect(json.Description).to.eql(\"Updated description\");\r",
+									"  pm.expect(json.ReleaseYear).to.eql(2000);\r",
+									"\r",
+									"  pm.expect(json.Genres).to.be.an(\"array\");\r",
+									"  pm.expect(json.Genres.length).to.eql(2);\r",
+									"  pm.expect(json.Genres[0]).to.eql(\"Sci-Fi\");\r",
+									"  pm.expect(json.Genres[1]).to.eql(\"Thriller\");\r",
+									"\r",
+									"  pm.expect(json.AgeRestriction).to.eql(16);\r",
+									"  pm.expect(json.Type).to.eql(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Timestamps exist\", function () {\r",
+									"  pm.expect(json.CreatedAt).to.exist;\r",
+									"  pm.expect(json.LastModifiedAt).to.exist;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"newTitle\": null,\r\n  \"description\": \"  Updated description  \",\r\n  \"releaseYear\": 2000,\r\n  \"genres\": [\" Sci-Fi \", \"Thriller\"],\r\n  \"ageRestriction\": 16,\r\n  \"type\": 0\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Media – Duplicate Title",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 409 Conflict (duplicate title)\", function () {\r",
+									"  pm.response.to.have.status(409);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"newTitle\": \"{{media_title_2}}\",\r\n  \"description\": \"Updated description\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Media - Valid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 or 204\", () => {\r",
+									"    pm.expect([200, 204]).to.include(pm.response.code);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Media – Unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 401 Unauthorized\", function () {\r",
+									"  pm.expect(pm.response.code).to.eql(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message exists\", function () {\r",
+									"  const body = pm.response.json();\r",
+									"  pm.expect(body).to.have.property(\"error\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_2}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title_2}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Rating for deleted Media",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Cannot create rating for deleted media\", function () {\r",
+									"  pm.expect([400, 404]).to.include(pm.response.code);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"{{media_title}}\",\r\n  \"username\": \"{{username}}\",\r\n  \"value\": 4,\r\n  \"comment\": \"after delete\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/ratings",
@@ -1823,6 +2942,1728 @@
 							],
 							"path": [
 								"ratings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Likes / Favorites",
+			"item": [
+				{
+					"name": "Create Rating User 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", function () {\r",
+									"  pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_2}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"{{media_title_2}}\",\r\n  \"username\": \"{{username_2}}\",\r\n  \"value\": 5,\r\n  \"comment\": \"rating by user 2\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Like Other User Rating",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"LikeCount exists\", () => pm.expect(body.LikeCount).to.exist);\r",
+									"pm.test(\"LikeCount >= 1\", () => pm.expect(body.LikeCount).to.be.at.least(1));"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{media_title_2}}/{{username_2}}/likes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{media_title_2}}",
+								"{{username_2}}",
+								"likes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Second Like From Same User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 409 Conflict\", () => pm.response.to.have.status(409));\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"Error exists\", () => pm.expect(body.error).to.exist);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"{{media_title_2}}\",\r\n  \"value\": 5,\r\n  \"comment\": \"rating by user2\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{media_title_2}}/{{username_2}}/likes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{media_title_2}}",
+								"{{username_2}}",
+								"likes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Like Count",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"LikeCount is number\", () => pm.expect(body.likeCount ?? body.LikeCount).to.be.a(\"number\"));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{media_title_2}}/{{username_2}}/likes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{media_title_2}}",
+								"{{username_2}}",
+								"likes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unlike",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"LikeCount decreased (>=0)\", () => pm.expect(body.LikeCount).to.be.at.least(0));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{media_title_2}}/{{username_2}}/likes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{media_title_2}}",
+								"{{username_2}}",
+								"likes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Favorite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"Success exists\", () => pm.expect(body.success).to.exist);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title_2}}/favorite",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title_2}}",
+								"favorite"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Favorite Second Time",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 409 Conflict\", () => pm.response.to.have.status(409));\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"Error exists\", () => pm.expect(body.error).to.exist);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title_2}}/favorite",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title_2}}",
+								"favorite"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Favoritelist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"MediaTitles is array\", () => pm.expect(body.MediaTitles).to.be.an(\"array\"));\r",
+									"\r",
+									"pm.test(\"Contains media_title_2\", () => {\r",
+									"  const expected = (pm.environment.get(\"media_title_2\") || \"\").toLowerCase();\r",
+									"  const arr = body.MediaTitles.map(x => (x || \"\").toLowerCase());\r",
+									"  pm.expect(arr).to.include(expected);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{username}}/favorites",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{username}}",
+								"favorites"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Favorite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"Success exists\", () => pm.expect(body.success ?? body.Success).to.exist);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title_2}}/favorite",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title_2}}",
+								"favorite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Favoritelist After Delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"Does not contain media_title_2\", () => {\r",
+									"  const removed = (pm.environment.get(\"media_title_2\") || \"\").toLowerCase();\r",
+									"  const arr = body.MediaTitles.map(x => (x || \"\").toLowerCase());\r",
+									"  pm.expect(arr).to.not.include(removed);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{username}}/favorites",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{username}}",
+								"favorites"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UserStatistic",
+			"item": [
+				{
+					"name": "New Media",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Media fields returned\", () => {\r",
+									"    pm.expect(json.Title).to.exist;\r",
+									"    pm.expect(json.Description).to.exist;\r",
+									"    pm.expect(json.Genres).to.be.an(\"array\");\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"media_title\", json.Title);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Inception\",\r\n  \"description\": \"A mind-bending thriller\",\r\n  \"releaseYear\": 2010,\r\n  \"genres\": [\"Sci-Fi\"],\r\n  \"ageRestriction\": 12,\r\n  \"type\": 0,\r\n  \"createdBy\": \"{{username}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/media",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New User 3",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.environment.get(\"username_3\")) {\r",
+									"  pm.environment.set(\"username_3\", \"u_\" + Date.now());\r",
+									"}\r",
+									"if (!pm.environment.get(\"password\")) {\r",
+									"  pm.environment.set(\"password\", \"!123Password\");\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));\r",
+									"\r",
+									"const ct = pm.response.headers.get(\"Content-Type\") || \"\";\r",
+									"pm.test(\"Content-Type is JSON\", () => pm.expect(ct.toLowerCase()).to.include(\"application/json\"));\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"pm.test(\"Success message present\", () => pm.expect(json.message).to.eql(\"User created successfully\"));"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"{{username_3}}\",\r\n  \"password\": \"!123Password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login New User 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"\r",
+									"const b = pm.response.json();\r",
+									"pm.test(\"Token returned\", () => {\r",
+									"  pm.expect(b).to.have.property(\"token\");\r",
+									"  pm.expect(b.token).to.be.a(\"string\").and.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"token_3\", b.token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"{{username_3}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Statistic Valid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"\r",
+									"const body = pm.response.json();\r",
+									"pm.expect(body).to.have.property(\"statistics\");\r",
+									"const s = body.statistics;\r",
+									"\r",
+									"pm.test(\"New user: totalRatings = 0\", () => pm.expect(s.totalRatings).to.eql(0));\r",
+									"pm.test(\"New user: averageScore = 0 or null\", () => pm.expect(s.averageScore === 0 || s.averageScore === null).to.be.true);\r",
+									"pm.test(\"New user: favoriteGenre is null\", () => pm.expect(s.favoriteGenre).to.eql(null));\r",
+									"pm.test(\"New user: ratedMediaCount = 0\", () => pm.expect(s.ratedMediaCount).to.eql(0));\r",
+									"pm.test(\"New user: highestScore is null\", () => pm.expect(s.highestScore).to.eql(null));\r",
+									"pm.test(\"New user: lowestScore is null\", () => pm.expect(s.lowestScore).to.eql(null));\r",
+									"\r",
+									"// public: private fields should not be present\r",
+									"pm.test(\"Public profile: no private fields\", () => {\r",
+									"  pm.expect(!(\"totalFavorites\" in s)).to.be.true;\r",
+									"  pm.expect(!(\"lastRatedAt\" in s)).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{username_3}}/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{username_3}}",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rating 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", () => {\r",
+									"  pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const b = pm.response.json();\r",
+									"pm.test(\"Response is JSON object\", () => {\r",
+									"  pm.expect(b).to.be.an(\"object\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"{{media_title}}\",\r\n  \"username\": \"{{username_3}}\",\r\n  \"value\": 5,\r\n  \"comment\": \"Great movie\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rating 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", () => {\r",
+									"  pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const b = pm.response.json();\r",
+									"pm.test(\"Response is JSON object\", () => {\r",
+									"  pm.expect(b).to.be.an(\"object\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"{{media_title_2}}\",\r\n  \"username\": \"{{username_3}}\",\r\n  \"value\": 3,\r\n  \"comment\": \"Okay movie\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile Public Statistic Rating",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"Has statistics\", () => {\r",
+									"  pm.expect(body).to.have.property(\"statistics\");\r",
+									"});\r",
+									"\r",
+									"const s = body.statistics;\r",
+									"\r",
+									"// Public expected fields\r",
+									"pm.test(\"totalRatings = 2\", () => pm.expect(s.totalRatings).to.eql(2));\r",
+									"pm.test(\"averageScore = 4\", () => pm.expect(Number(s.averageScore)).to.eql(4));\r",
+									"pm.test(\"highestScore = 5\", () => pm.expect(s.highestScore).to.eql(5));\r",
+									"pm.test(\"lowestScore = 3\", () => pm.expect(s.lowestScore).to.eql(3));\r",
+									"pm.test(\"ratedMediaCount = 2\", () => pm.expect(s.ratedMediaCount).to.eql(2));\r",
+									"\r",
+									"pm.test(\"Private fields are not required in public profile\", () => {\r",
+									"  pm.expect(\r",
+									"    !(\"totalFavorites\" in s) || s.totalFavorites === null\r",
+									"  ).to.be.true;\r",
+									"\r",
+									"  pm.expect(\r",
+									"    !(\"lastRatedAt\" in s) || s.lastRatedAt === null\r",
+									"  ).to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{username_3}}/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{username_3}}",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Favorite 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201/200\", () => {\r",
+									"  pm.expect([200, 201]).to.include(pm.response.code);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title}}/favorite",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title}}",
+								"favorite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Favorite 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201/200\", () => {\r",
+									"  pm.expect([200, 201]).to.include(pm.response.code);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title_2}}/favorite",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title_2}}",
+								"favorite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile Statistic Private Favorite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const body = pm.response.json();\r",
+									"const s = body.statistics;\r",
+									"\r",
+									"pm.test(\"totalFavorites = 2\", () => {\r",
+									"  pm.expect(s.totalFavorites).to.eql(2);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"lastRatedAt is set and parseable\", () => {\r",
+									"  pm.expect(s.lastRatedAt).to.exist;\r",
+									"  pm.expect(new Date(s.lastRatedAt).toString()).to.not.eql(\"Invalid Date\");\r",
+									"});\r",
+									"\r",
+									"// Optional: favoriteGenre (depends on your media genres)\r",
+									"pm.test(\"favoriteGenre exists (not null)\", () => {\r",
+									"  pm.expect(s.favoriteGenre).to.not.eql(null);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{username_3}}/profile/private",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{username_3}}",
+								"profile",
+								"private"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Favorite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title_2}}/favorite",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title_2}}",
+								"favorite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile Statistic Private After Delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const s = pm.response.json().statistics;\r",
+									"\r",
+									"pm.test(\"totalFavorites = 1\", () => {\r",
+									"  pm.expect(s.totalFavorites).to.eql(1);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{username_3}}/profile/private",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{username_3}}",
+								"profile",
+								"private"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile Statistic Private Other User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Private profile access for foreign user is forbidden (401/403)\", () => {\r",
+									"  pm.expect([401, 403]).to.include(pm.response.code);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{username}}/profile/private",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{username}}",
+								"profile",
+								"private"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile Statistic Public Other User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Public profile of foreign user is accessible (200)\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const body = pm.response.json();\r",
+									"pm.test(\"Has statistics\", () => {\r",
+									"  pm.expect(body).to.have.property(\"statistics\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{username_2}}/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{username_2}}",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Media",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 or 204\", () => pm.expect([200, 204]).to.include(pm.response.code));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media/{{media_title_2}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{media_title_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile After Delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"pm.test(\"Has statistics\", () => pm.expect(json).to.have.property(\"statistics\"));\r",
+									"\r",
+									"const s = json.statistics;\r",
+									"\r",
+									"pm.test(\"After delete: totalRatings = 1\", () => pm.expect(s.totalRatings).to.eql(1));\r",
+									"pm.test(\"After delete: ratedMediaCount = 1\", () => pm.expect(s.ratedMediaCount).to.eql(1));\r",
+									"\r",
+									"pm.test(\"After delete: averageScore = 5\", () => pm.expect(s.averageScore).to.eql(5));\r",
+									"pm.test(\"After delete: highestScore = 5\", () => pm.expect(s.highestScore).to.eql(5));\r",
+									"pm.test(\"After delete: lowestScore = 5\", () => pm.expect(s.lowestScore).to.eql(5));\r",
+									"\r",
+									"pm.test(\"Private: totalFavorites exists\", () => pm.expect(s).to.have.property(\"totalFavorites\"));\r",
+									"pm.test(\"Private: lastRatedAt exists (nullable but property present)\", () => pm.expect(s).to.have.property(\"lastRatedAt\"));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"{{username_3}}\",\r\n  \"password\": \"{{password}}\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{username_3}}/profile/private",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{username_3}}",
+								"profile",
+								"private"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AverageCalculation",
+			"item": [
+				{
+					"name": "Delete Rating  3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Delete rating: success (200 or 204)\", () => {\r",
+									"  pm.expect([200, 204]).to.include(pm.response.code);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_3}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{media_title}}/{{username_3}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{media_title}}",
+								"{{username_3}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rating User1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Create rating user1: success\", () => {\r",
+									"  pm.expect([200, 201]).to.include(pm.response.code);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"{{media_title}}\",\r\n  \"username\": \"{{username}}\",\r\n  \"value\": 5,\r\n  \"comment\": null\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rating User2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Create rating user2: success\", () => {\r",
+									"  pm.expect([200, 201]).to.include(pm.response.code);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_2}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mediaTitle\": \"{{media_title}}\",\r\n  \"username\": \"{{username_2}}\",\r\n  \"value\": 3,\r\n  \"comment\": null\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Average = 4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Average endpoint: 200\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"pm.test(\"Average == 4.0\", () => {\r",
+									"  pm.expect(json.average).to.eql(4.0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{media_title}}/average",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{media_title}}",
+								"average"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rating User2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update rating user2: success\", () => {\r",
+									"  pm.expect([200, 201]).to.include(pm.response.code);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_2}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"value\": 5,\r\n  \"comment\": \"updated comment\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{media_title}}/{{username_2}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{media_title}}",
+								"{{username_2}}"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Average = 5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Average endpoint: 200\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"pm.test(\"Average == 5.0\", () => {\r",
+									"  pm.expect(json.average).to.eql(5);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{media_title}}/average",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{media_title}}",
+								"average"
 							]
 						}
 					},

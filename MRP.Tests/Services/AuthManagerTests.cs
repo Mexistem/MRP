@@ -1,5 +1,8 @@
-﻿using MRP.Server.Services;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MRP.Server.Services;
 using MRP.Server.Storage.InMemory;
+using MRP.Tests.Helpers;
+using System;
 
 namespace MRP.Tests
 {
@@ -8,14 +11,22 @@ namespace MRP.Tests
     {
         private UserManager userManager = null!;
         private AuthManager authManager = null!;
+        private InMemoryTokenRepository tokenRepository = null!;
 
         [TestInitialize]
         public void Setup()
         {
-            var userRepository = new InMemoryUserRepository();
-            userManager = new UserManager(userRepository);
+            var t = TestSetup.Create();
+
+            tokenRepository = t.TokenRepo;
+
+            userManager = new UserManager(
+                t.UserRepo,
+                t.TokenRepo
+            );
+
             userManager.Register("melanie", "!123Password");
-            var tokenRepository = new InMemoryTokenRepository();
+
             authManager = new AuthManager(userManager, tokenRepository);
         }
 
@@ -36,7 +47,6 @@ namespace MRP.Tests
         public void Login_WithInvalidPassword_ShouldThrowException()
         {
             Assert.ThrowsException<UnauthorizedAccessException>(() => authManager.Login("melanie", "123!Password"));
-
         }
 
         [TestMethod]
@@ -85,6 +95,7 @@ namespace MRP.Tests
         public void Token_CanOnlyBeUsedByAssignedUser()
         {
             userManager.Register("lena", "!123Password");
+
             authManager.Login("melanie", "!123Password");
             authManager.Login("lena", "!123Password");
 
@@ -123,7 +134,6 @@ namespace MRP.Tests
 
             var afterValidation = authManager.GetTokenInfo("melanie");
             Assert.IsNull(afterValidation, "Expired token should be removed from the store after validation");
-
         }
     }
 }

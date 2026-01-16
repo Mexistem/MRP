@@ -8,6 +8,17 @@
             int value,
             string? comment)
         {
+
+            if (string.IsNullOrWhiteSpace(mediaTitle))
+            {
+                throw new ArgumentException("Media title is required.", nameof(mediaTitle));
+            }
+
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new ArgumentException("Username is required.", nameof(username));
+            }
+
             if (value < 1 || value > 5)
             {
                 throw new ArgumentException("Rating value must be between 1 and 5.", nameof(value));

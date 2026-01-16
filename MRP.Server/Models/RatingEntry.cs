@@ -1,5 +1,4 @@
-﻿
-using MRP.Server.Validation;
+﻿using MRP.Server.Validation;
 namespace MRP.Server.Models
 {
     public sealed class RatingEntry
@@ -27,6 +26,41 @@ namespace MRP.Server.Models
             Value = value;
             Comment = comment?.Trim();
             CreatedAt = DateTime.UtcNow;
+        }
+
+        public static RatingEntry FromDatabase(
+            string mediaTitle,
+            string username,
+            int value,
+            string? comment,
+            DateTime createdAt)
+        {
+            RatingValidator.ValidateForCreate(
+                mediaTitle,
+                username,
+                value,
+                comment);
+
+            return new RatingEntry(
+                mediaTitle,
+                username,
+                value,
+                comment,
+                createdAt);
+        }
+
+        private RatingEntry(
+            string mediaTitle,
+            string username,
+            int value,
+            string? comment,
+            DateTime createdAt)
+        {
+            MediaTitle = mediaTitle;
+            Username = username;
+            Value = value;
+            Comment = comment?.Trim();
+            CreatedAt = createdAt;
         }
     }
 }

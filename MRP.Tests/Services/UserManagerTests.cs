@@ -1,12 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MRP.Server.Models;
 using MRP.Server.Services;
-using MRP.Server.Storage.InMemory;
+using MRP.Tests.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MRP.Tests.Services
 {
@@ -16,13 +11,16 @@ namespace MRP.Tests.Services
         [TestMethod]
         public void AddUser_ShouldThrowException_WhenUsernameAlreadyExists_CaseInsensitive()
         {
-            var userRepository = new InMemoryUserRepository();
-            var manager = new UserManager(userRepository);
+            var t = TestSetup.Create();
+
+            var manager = new UserManager(
+                t.UserRepo,
+                t.TokenRepo
+            );
 
             manager.Register("melanie", "!123Password");
 
             Assert.ThrowsException<InvalidOperationException>(() => manager.Register("mElAnIe", "!123Password"));
         }
-
     }
 }

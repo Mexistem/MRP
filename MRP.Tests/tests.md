@@ -32,12 +32,29 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Token wird angenommen oder abgelehnt wenn abgelaufen
 - [x] Token kann nur vom richtigen Benutzer verwendet werden
 - [x] Abgemeldeter Benutzer verliert Gültigkeit seines Tokens
-- [ ] Abgelaufene Tokens werden nach Überprüfen aus der Liste gelöscht
+- [x] Abgelaufene Tokens werden nach Überprüfen aus der Liste gelöscht
 
 ### 3. Benutzerstatistik
-- [ ] Neuer Benutzer hat 0 Bewertungen
-- [ ] Durchschnittliche Bewertung wird richtig berechnet
-- [ ] Lieblingsgenre ergibt sich aus den meistbewerteten Medien
+- [x] Neuer Benutzer hat 0 Bewertungen
+- [x] Durchschnittliche Bewertung wird richtig berechnet
+- [x] Lieblingsgenre ergibt sich aus den meistbewerteten Medien
+- [x] Anzahl der bewerteten Medien wird korrekt gezählt
+- [x] Anzahl der Favoriten wird korrekt gezählt
+- [x] Höchste vergebene Bewertung wird korrekt ermittelt
+- [x] Niedrigste vergebene Bewertung wird korrekt ermittelt
+- [x] Letzter Bewertungszeitpunkt wird korrekt gesetzt
+- [x] Benutzer ohne Bewertungen hat kein Lieblingsgenre
+- [x] Benutzer ohne Bewertungen hat keinen letzten Bewertungszeitpunkt
+
+### 4. Benutzer löschen (Admin)
+
+- [x] Ein nicht-administrativer Benutzer kann keinen anderen Benutzer löschen (Request wird mit Status 403 Forbidden abgelehnt)
+- [x] Ein Administrator kann einen Benutzer erfolgreich löschen
+- [x] Beim Löschen eines Benutzers werden alle zugehörigen Authentifizierungs-Tokens des Benutzers entfernt und ungültig gemacht
+- [x] Beim Löschen eines Benutzers werden alle vom Benutzer erstellten Bewertungen entfernt
+- [x] Beim Löschen eines Benutzers werden alle vom Benutzer vergebenen Likes entfernt
+- [x] Beim Löschen eines Benutzers werden alle vom Benutzer gespeicherten Favoriten entfernt
+- [x] Beim Löschen eines Benutzers werden alle vom Benutzer erstellten Medien ebenfalls gelöscht, inklusive der zugehörigen Bewertungen, Likes und Favoriten
 
 ---
 
@@ -67,18 +84,18 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Es darf keine zwei Medien mit gleichem Titel geben (case-insensitive)
 
 ### 2. Medien bearbeiten
-- [ ] Nur Ersteller darf Medium bearbeiten
-- [ ] Änderungen werden korrekt übernommen
-- [ ] Änderungen werden abgelehnt, wenn Titel/Beschreibung/Genre-Liste leer sind
-- [ ] Ungültige Änderungen (z. B. ungültiger Typ, Alter < 0, ungültiges Jahr) werden abgelehnt
-- [ ] Änderungszeitpunkt wird richtig gesetzt
-- [ ] Titel darf durch ein Update nicht zu einem Duplikat eines anderen Mediums werden
+- [x] Nur Ersteller darf Medium bearbeiten
+- [x] Änderungen werden korrekt übernommen
+- [x] Änderungen werden abgelehnt, wenn Titel/Beschreibung/Genre-Liste leer sind
+- [x] Ungültige Änderungen (z. B. ungültiger Typ, Alter < 0, ungültiges Jahr) werden abgelehnt
+- [x] Änderungszeitpunkt wird richtig gesetzt
+- [x] Titel darf durch ein Update nicht zu einem Duplikat eines anderen Mediums werden
 
 ### 3. Medien löschen
-- [ ] Nur Ersteller darf Medium löschen
-- [ ] Beim Löschen werden zugehörige Bewertungen entfernt
-- [ ] Beim Löschen werden Favoriten entfernt
-- [ ] Statistiken werden nach dem Löschen aktualisiert
+- [x] Nur Ersteller darf Medium löschen
+- [x] Beim Löschen werden zugehörige Bewertungen entfernt
+- [x] Beim Löschen werden Favoriten entfernt
+- [x] Statistiken werden nach dem Löschen aktualisiert
 
 ---
 
@@ -92,29 +109,28 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [x] Kommentar wird vor der Speicherung getrimmt
 
 ### 2. Bewertung bearbeiten oder löschen
-- [ ] Nur Ersteller kann Bewertung ändern
-- [ ] Kommentaränderung muss bestätigt werden
-- [ ] Löschen entfernt Bewertung aus Durchschnitt
+- [x] Nur Ersteller kann Bewertung ändern
+- [x] Löschen entfernt Bewertung aus Durchschnitt
 
 ### 3. Durchschnittsberechnung
-- [ ] Durchschnittswert eines Mediums wird richtig berechnet
-- [ ] Durchschnitt ändert sich nach neuer Bewertung
-- [ ] Durchschnitt ignoriert ungültige Bewertungen
+- [x] Durchschnittswert eines Mediums wird richtig berechnet
+- [x] Durchschnitt ändert sich nach neuer Bewertung
+- [x] Durchschnitt ignoriert ungültige Bewertungen
 
 ---
 
 ## D. Likes und Favoriten
 
 ### Likes
-- [ ] Benutzer kann fremde Bewertungen liken
-- [ ] Benutzer kann ein Rating nur einmal liken
-- [ ] Like kann wieder entfernt werden
-- [ ] Like-Zähler wird richtig aktualisiert
+- [x] Benutzer kann fremde Bewertungen liken
+- [x] Benutzer kann ein Rating nur einmal liken
+- [x] Like kann wieder entfernt werden
+- [x] Like-Zähler wird richtig aktualisiert
 
 ### Favoriten
-- [ ] Benutzer kann Medium als Favorit speichern
-- [ ] Favorit kann wieder entfernt werden
-- [ ] Favoritenliste zeigt alle gespeicherten Medien
+- [x] Benutzer kann Medium als Favorit speichern
+- [x] Favorit kann wieder entfernt werden
+- [x] Favoritenliste zeigt alle gespeicherten Medien
 
 ---
 
@@ -150,44 +166,13 @@ Zuerst werden Tests erstellt (Red), danach der Code implementiert (Green) und zu
 - [ ] Empfehlung berücksichtigt Altersfreigabe
 - [ ] Empfehlung bevorzugt ähnliche Genres
 
----
 
-## G. Sicherheit
-
-### Token-Validierung
-- [ ] Request ohne Token wird abgelehnt (401)
-- [ ] Ungültiger Token führt zu 401
-- [ ] Gültiger Token erlaubt Zugriff
-
-### Zugriffskontrolle
-- [ ] Benutzer darf nur eigene Daten bearbeiten
-- [ ] Administrator darf alle Daten lesen
-- [ ] Ungültige Anfragen liefern korrekte Statuscodes (400, 403, 404)
-
----
-
-## H. Statistiken
+## G. Statistiken
 
 - [ ] Leaderboard listet Benutzer nach Anzahl Bewertungen
 - [ ] Benutzerprofil zeigt Gesamtzahl Bewertungen und Likes
 - [ ] Durchschnittsbewertung pro Benutzer wird richtig berechnet
 - [ ] Leaderboard ist nach Aktivität sortiert
-
----
-
-## I. Datenbank
-
-- [ ] Daten werden korrekt in PostgreSQL gespeichert
-- [ ] Daten können korrekt ausgelesen werden
-- [ ] Nach Neustart bleiben Daten erhalten
-- [ ] Tokens werden nicht gespeichert
-
----
-
-## Testframeworks
-- Unit-Tests mit MSTest
-- Mocking mit Moq (für Datenbank oder Services)
-- Integrationstests mit Postman
 
 ---
 
